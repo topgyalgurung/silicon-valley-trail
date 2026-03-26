@@ -1,0 +1,11 @@
+from flask import Flask
+
+from game import pages
+
+def create_app():
+    app = Flask(__name__)
+
+    app.register_blueprint(pages.game_routes)
+
+    return app
+

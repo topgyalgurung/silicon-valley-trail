@@ -1,1 +1,1 @@
-# silicon-valley-trail
+# SILICON VALLEY TRAIL

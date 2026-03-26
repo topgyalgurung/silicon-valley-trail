@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event</title>
+  </head>
+  <body>
+    <p>{{event.description }}</p>
+
+    <hr />
+
+    {%if event.requires_input%}
+
+    <!-- SHOW FORM ONLY IF NEEDED -->
+    <form method="POST" action="/event">
+      {% for option in event.options %}
+      <button type="submit" name="choice" value="{{ option.id }}">
+        {{ option.id }}. {{ option.text }}
+      </button>
+      <br /><br />
+      {% endfor %}
+    </form>
+
+    {% else %}
+
+    <!-- AUTO EVENT -->
+    <form method="POST" action="/event/auto">
+      <button type="submit">Continue →</button>
+    </form>
+
+    {% endif %} {% endblock %}
+  </body>
+</html>

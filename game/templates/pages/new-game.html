@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Description</title>
+  </head>
+  <body>
+    {% extends 'base.html' %} {% block header %}
+
+    <p>
+      Your scrappy startup team is embarking on a journey from San Jose to San
+      Francisco to pitch a Series A funding!
+    </p>
+
+    {% endblock header %} {%block content %}
+
+    <p>Manage your resources wisely:</p>
+    <ul>
+      <li>Cash: Dont run out</li>
+      <li>Morale:Keep your team happy</li>
+      <li>Coffee: Essential fuel (2 days without = game over)</li>
+      <li>Hype: Public interest in your startup</li>
+      <li>Bugs: Keep them under control</li>
+    </ul>
+
+    <p>Good luck, founder !</p>
+
+    <p>Press Enter to begin your journey...</p>
+
+    {%endblock content %}
+  </body>
+  <script>
+    document.addEventListener("keydown", function (event) {
+      if (event.key == "Enter") {
+        event.preventDefault();
+        handleEnterKeyPress();
+      }
+    });
+    function handleEnterKeyPress() {
+      alert("key pressed");
+      //
+    }
+  </script>
+</html>

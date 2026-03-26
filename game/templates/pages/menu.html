@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu</title>
+  </head>
+  <body>
+    {% extends "base.html" %} {% block header %}
+    <h2>{% block title %}Main Menu{% endblock title %}</h2>
+    {% endblock header %} {% block content %}
+
+    <form method="POST" action="/menu">
+      <button name="choice" value="1">1. New Game</button><br /><br />
+      <button name="choice" value="2">2. Load Game</button><br /><br />
+      <button name="choice" value="3">3. Quit</button>
+    </form>
+
+    {% endblock content %}
+  </body>
+</html>
