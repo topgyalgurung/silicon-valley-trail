@@ -1,44 +1,33 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game Screen</title>
-  </head>
-  <body>
-    {% extends "base.html"%} {%block content %}
+{% extends "base.html"%} {%block content %}
 
-    <h2>Day {{game.day}} | {{city }}</h2>
-    <h2>{{ location_detail }}</h2>
+<h2>Day {{game.day}} | {{game.city }}</h2>
+<ul>
+  <li>Cash: {{game.team.money}}</li>
+  <li>Morale: {{game.team.morale}}</li>
+  <li>Coffee: {{game.team.coffee}}</li>
+  <li>Hype: {{game.team.hype}}</li>
+  <li>Bugs: {{game.team.bugs}}</li>
+  <li>Progress: {{game.team.progress}} to San Francisco</li>
+</ul>
 
-    <ul>
-      <li>Cash: {{game.team.money}}</li>
-      <li>Cash: {{game.team.morale}}</li>
-      <li>Cash: {{game.team.coffee}}</li>
-      <li>Cash: {{game.team.hype}}</li>
-      <li>Cash: {{game.team.bugs}}</li>
-      <li>Progress: {{game.team.progress}} to San Francisco</li>
-    </ul>
+<p>Weather: {{game.weather}}</p>
 
-    <p>Weather: {{weather}}</p>
+<p>What will you do?</p>
 
-    <p>What will you do?</p>
+<form method="POST" action="{{ url_for('game.move') }}">
+  <button name="action" value="travel">1. Travel to next location</button
+  ><br /><br />
+  <button name="action" value="rest">
+    2. Rest and recover (restore morale, use coffee)</button
+  ><br /><br />
+  <button name="action" value="work">
+    3. Work on product (reduce bugs, use coffee)</button
+  ><br /><br />
+  <button name="action" value="network">
+    4. Marketing push (increase hype, costs money)</button
+  ><br /><br />
+  <button name="action" value="save">5. Save game</button><br /><br />
+  <button name="action" value="quit">6. Quit to menu</button>
+</form>
 
-    <form method="POST" action="/move">
-      <button name="action" value="travel">1. Travel to next location</button
-      ><br /><br />
-      <button name="action" value="rest">
-        2. Rest and recover (restore morale, use coffee)</button
-      ><br /><br />
-      <button name="action" value="work">
-        3. Work on product (reduce bugs, use coffee)</button
-      ><br /><br />
-      <button name="action" value="network">
-        4. Marketing push (increase hype, costs money)</button
-      ><br /><br />
-      <button name="action" value="save">5. Save game</button><br /><br />
-      <button name="action" value="quit">6. Quit to menu</button>
-    </form>
-    {% endblock %}
-  </body>
-</html>
+{% endblock %}

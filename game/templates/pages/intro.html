@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block header %}
+
+<p>
+  Your scrappy startup team is embarking on a journey from San Jose to San
+  Francisco to pitch a Series A funding!
+</p>
+
+{% endblock header %} {%block content %}
+
+<p>Manage your resources wisely:</p>
+<ul>
+  <li>Cash: Dont run out</li>
+  <li>Morale:Keep your team happy</li>
+  <li>Coffee: Essential fuel (2 days without = game over)</li>
+  <li>Hype: Public interest in your startup</li>
+  <li>Bugs: Keep them under control</li>
+</ul>
+
+<p>Good luck, founder !</p>
+
+<p>Press Enter to begin your journey...</p>
+
+<form method="GET" action="{{ url_for('game.show_game') }}">
+  <button type="submit">Start Journey</button>
+</form>
+
+{%endblock content %}
