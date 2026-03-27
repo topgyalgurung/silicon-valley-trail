@@ -197,3 +197,8 @@ Generate requirements file:
 ```bash
 $ pip freeze > requirements.txt
 ```
+
+## To check tables etc in sqlite database 
+sqlite3 instance/game.db ".tables"
+sqlite3 instance/game.db "SELECT id, day, city, money, morale FROM game_session;"
+sqlite3 instance/game.db "SELECT COUNT(*) FROM game_session;"
