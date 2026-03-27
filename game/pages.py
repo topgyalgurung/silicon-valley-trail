@@ -5,8 +5,10 @@ from game.models import GameSession, Location
 game_routes = Blueprint("game", __name__)
 
 def create_new_game():
+    reset_game()
     start_location = Location.query.filter_by(city_name="San Jose").first()
     destination_location = Location.query.filter_by(city_name="San Francisco").first()
+    # create fresh game session with initial state
     game = GameSession(
         current_day=1,
         current_location_id=start_location.id,
@@ -49,7 +51,7 @@ def intro():
 
 @game_routes.route("/show_game")
 def show_game():
-    game = get_latest_game()
+    game = get_latest_game() # get latest game session from the database or create a new one if none exists
     return render_template("pages/game.html", game=game)
 
 @game_routes.route("/move", methods=["POST"])

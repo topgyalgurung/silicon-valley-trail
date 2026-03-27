@@ -198,7 +198,15 @@ Generate requirements file:
 $ pip freeze > requirements.txt
 ```
 
+## Database 
+
+### Creating database 
+export FLASK_APP=app
+export FLASK_APP=development
+flask shell 
+
 ## To check tables etc in sqlite database 
 sqlite3 instance/game.db ".tables"
-sqlite3 instance/game.db "SELECT id, day, city, money, morale FROM game_session;"
 sqlite3 instance/game.db "SELECT COUNT(*) FROM game_session;"
+sqlite3 instance/game.db "SELECT COUNT(*) FROM locations;"
+sqlite3 instance/game.db "SELECT id, day, city, money, morale FROM game_session;"
