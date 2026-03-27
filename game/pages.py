@@ -1,25 +1,34 @@
 from flask import Blueprint, render_template, request 
 from game.extensions import db
-from game.models import GameSession
-from data.seed_data import INITIAL_GAME_STATE
+from game.models import GameSession, Location
 
 game_routes = Blueprint("game", __name__)
 
 def create_new_game():
+    start_location = Location.query.filter_by(city_name="San Jose").first()
+    destination_location = Location.query.filter_by(city_name="San Francisco").first()
     game = GameSession(
-        day=INITIAL_GAME_STATE["day"],
-        city=INITIAL_GAME_STATE["city"],
-        current_location_detail=INITIAL_GAME_STATE["current_location_detail"],
-        money=INITIAL_GAME_STATE["money"],
-        morale=INITIAL_GAME_STATE["morale"],
-        coffee=INITIAL_GAME_STATE["coffee"],
-        hype=INITIAL_GAME_STATE["hype"],
-        bugs=INITIAL_GAME_STATE["bugs"],
-        progress=INITIAL_GAME_STATE["progress"],
+        current_day=1,
+        current_location_id=start_location.id,
+        destination_location_id=destination_location.id,
+        status= "in_progress",
+        cash=50000,
+        morale=100,
+        coffee=50,
+        hype=50,
+        bugs=0,
+        progress=0,
+        coffee_zero_turns=0,
+        current_event_key=None,
     )
     db.session.add(game)
     db.session.commit()
     return game
+
+def reset_game():
+    GameSession.query.delete()
+    db.session.commit()
+
 
 def get_latest_game():
     latest_game = GameSession.query.order_by(GameSession.created_at.desc()).first()

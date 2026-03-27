@@ -1,29 +1,44 @@
 from game.extensions import db
 
-class GameSession(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    day = db.Column(db.Integer, default=1)
-    current_location_index = db.Column(db.Integer, default=0)
-    city = db.Column(db.String(100), nullable=False, default="San Jose")
-    current_location_detail = db.Column(
-        db.String(255),
-        nullable=False,
-        default="San Jose is the capital of California"
-    )
-    is_active = db.Column(db.Boolean, default=True)
-    coffee_zero_turns = db.Column(db.Integer, default=0)
+# keeping common SQLAlchemy syntax for now. newer syntax uses declarative base and mapped columns.
 
-    money = db.Column(db.Integer, default=50000)
+class GameSession(db.Model):
+    __tablename__ = 'game_session'
+    id = db.Column(db.Integer, primary_key=True)
+    current_day = db.Column(db.Integer, nullable=False, default=1)
+    current_location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)
+    destination_location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='in_progress') # in progress, won, lost
+
+    progress = db.Column(db.Integer, nullable=False, default=0) # percentage of the way to the destination
+    coffee_zero_turns = db.Column(db.Integer, default=0)
+    current_event_key = db.Column(db.String(100), nullable=True)
+
+    # Resource columns
+    cash = db.Column(db.Integer, default=50000)
     morale = db.Column(db.Integer, default=100)
     coffee = db.Column(db.Integer, default=50)
     hype = db.Column(db.Integer, default=50)
     bugs = db.Column(db.Integer, default=0)
-    progress = db.Column(db.Integer, default=0)
 
-    current_event_id = db.Column(db.String(100), nullable=True)
+    current_location = db.relationship('Location', foreign_keys=[current_location_id])
+    destination_location = db.relationship('Location', foreign_keys=[destination_location_id])
+
     created_at = db.Column(db.DateTime, default=db.func.now())
-    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
     def __repr__(self):
-        return f"<GameSession id={self.id} city={self.city} day={self.day}>"
+        return f"<GameSession id={self.id} day={self.current_day} >"
+
+class Location(db.Model):
+    __tablename__ = 'location'
+    id = db.Column(db.Integer, primary_key=True)
+    city_name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=False)
+    order_index = db.Column(db.Integer, unique=True)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+
+    def __repr__(self):
+        return f"<Location id={self.id} name={self.name}>"
+
 
