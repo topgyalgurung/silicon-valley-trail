@@ -6,25 +6,29 @@
     <title>Game Screen</title>
   </head>
   <body>
-    {% extends "base.html"%} {%block content %}
+    {% extends "base.html" %} {% block content %}
 
-    <h2>Day {{game.day}} | {{city }}</h2>
-    <h2>{{ location_detail }}</h2>
+    <h2>Day {{game.day}} | {{location }}</h2>
+    <p>{{ location_description }}</p>
+
+    <hr />
 
     <ul>
-      <li>Cash: {{game.team.money}}</li>
-      <li>Cash: {{game.team.morale}}</li>
-      <li>Cash: {{game.team.coffee}}</li>
-      <li>Cash: {{game.team.hype}}</li>
-      <li>Cash: {{game.team.bugs}}</li>
-      <li>Progress: {{game.team.progress}} to San Francisco</li>
+      <li>💰 Cash: {{ game.team.cash }}</li>
+      <li>🤝 Morale: {{ game.team.morale }}/100</li>
+      <li>☕ Coffee: {{ game.team.coffee }}</li>
+      <li>🔥 Hype: {{ game.team.hype }}/100</li>
+      <li>🐞 Bugs: {{ game.team.bugs }}</li>
+      <li>📈 Progress: {{ game.team.progress }}%</li>
+      <li>⏳ Coffee danger turns: {{ game.coffee_zero_turns }}</li>
     </ul>
 
     <p>Weather: {{weather}}</p>
 
     <p>What will you do?</p>
 
-    <form method="POST" action="/move">
+    {% if game.is_active %}
+    <form method="POST" action="{{ url_for('game_routes.move') }}">
       <button name="action" value="travel">1. Travel to next location</button
       ><br /><br />
       <button name="action" value="rest">
@@ -39,6 +43,11 @@
       <button name="action" value="save">5. Save game</button><br /><br />
       <button name="action" value="quit">6. Quit to menu</button>
     </form>
-    {% endblock %}
+    {% else %}
+    <h3>Game Over</h3>
+    <form method="GET" action="{{ url_for('game.menu') }}">
+      <button type="submit">Back to Menu</button>
+    </form>
+    {% endblock content %}
   </body>
 </html>

@@ -8,4 +8,3 @@ def create_app():
     app.register_blueprint(pages.game_routes)
 
     return app
-

@@ -190,6 +190,7 @@ Run:
 
 ```bash
 python -m flask --app game run --port 8000 --debug
+flask --app game run
 ```
 
 Generate requirements file:
@@ -197,3 +198,13 @@ Generate requirements file:
 ```bash
 $ pip freeze > requirements.txt
 ```
+
+## choices:
+
+- App Factory method
+
+you can do:
+export FLASK_APP=game
+flask run
+
+- but run.py cleaner and safer for project

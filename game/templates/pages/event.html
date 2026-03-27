@@ -6,6 +6,8 @@
     <title>Event</title>
   </head>
   <body>
+    {% extends "base.html" %} {% block content %}
+    <h2>Event: {{ event.name }}</h2>
     <p>{{event.description }}</p>
 
     <hr />
@@ -13,20 +15,18 @@
     {%if event.requires_input%}
 
     <!-- SHOW FORM ONLY IF NEEDED -->
-    <form method="POST" action="/event">
+    <form method="POST" action="{{ url_for('game.handle_event') }}">
       {% for option in event.options %}
-      <button type="submit" name="choice" value="{{ option.id }}">
-        {{ option.id }}. {{ option.text }}
+      <button name="choice" value="{{ option.id }}">
+        {{ loop.index }}. {{ option.text }}
       </button>
       <br /><br />
       {% endfor %}
     </form>
 
     {% else %}
-
-    <!-- AUTO EVENT -->
-    <form method="POST" action="/event/auto">
-      <button type="submit">Continue →</button>
+    <form method="POST" action="{{ url_for('game.handle_auto_event') }}">
+      <button type="submit">Continue</button>
     </form>
 
     {% endif %} {% endblock %}

@@ -10,10 +10,16 @@
     <h2>{% block title %}Main Menu{% endblock title %}</h2>
     {% endblock header %} {% block content %}
 
-    <form method="POST" action="/menu">
-      <button name="choice" value="1">1. New Game</button><br /><br />
-      <button name="choice" value="2">2. Load Game</button><br /><br />
-      <button name="choice" value="3">3. Quit</button>
+    <form method="POST" action="{{ url_for('game_routes.start_new_game') }}">
+      <button type="submit">New Game</button>
+    </form>
+
+    <form method="GET" action="{{ url_for('game_routes.load_game') }}">
+      <button type="submit">Load Game</button>
+    </form>
+
+    <form method="GET" action="{{ url_for('game_routes.quit_game') }}">
+      <button type="submit">Quit</button>
     </form>
 
     {% endblock content %}
