@@ -1,34 +1,24 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Event</title>
-  </head>
-  <body>
-    {% extends "base.html" %} {% block content %}
-    <h2>Event: {{ event.name }}</h2>
-    <p>{{event.description }}</p>
+{% extends "base.html" %} {% block content %}
+<h2>Event: {{ event.name }}</h2>
+<p>{{event.description }}</p>
 
-    <hr />
+<hr />
 
-    {%if event.requires_input%}
+{%if event.requires_input%}
 
-    <!-- SHOW FORM ONLY IF NEEDED -->
-    <form method="POST" action="{{ url_for('game.handle_event') }}">
-      {% for option in event.options %}
-      <button name="choice" value="{{ option.id }}">
-        {{ loop.index }}. {{ option.text }}
-      </button>
-      <br /><br />
-      {% endfor %}
-    </form>
+<!-- SHOW FORM ONLY IF NEEDED -->
+<form method="POST" action="{{ url_for('game.handle_event') }}">
+  {% for option in event.options %}
+  <button name="choice" value="{{ option.id }}">
+    {{ loop.index }}. {{ option.text }}
+  </button>
+  <br /><br />
+  {% endfor %}
+</form>
 
-    {% else %}
-    <form method="POST" action="{{ url_for('game.handle_auto_event') }}">
-      <button type="submit">Continue</button>
-    </form>
+{% else %}
+<form method="POST" action="{{ url_for('game.handle_auto_event') }}">
+  <button type="submit">Continue</button>
+</form>
 
-    {% endif %} {% endblock %}
-  </body>
-</html>
+{% endif %} {% endblock %}

@@ -1,27 +1,16 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menu</title>
-  </head>
-  <body>
-    {% extends "base.html" %} {% block header %}
-    <h2>{% block title %}Main Menu{% endblock title %}</h2>
-    {% endblock header %} {% block content %}
+{% extends "base.html" %} {% block head %}
+<h2>{% block title %}Main Menu{% endblock %}</h2>
+{% endblock %} {% block content %}
+<form method="POST" action="{{ url_for('game_routes.start_new_game') }}">
+  <button type="submit">New Game</button>
+</form>
 
-    <form method="POST" action="{{ url_for('game_routes.start_new_game') }}">
-      <button type="submit">New Game</button>
-    </form>
+<form method="GET" action="{{ url_for('game_routes.load_game') }}">
+  <button type="submit">Load Game</button>
+</form>
 
-    <form method="GET" action="{{ url_for('game_routes.load_game') }}">
-      <button type="submit">Load Game</button>
-    </form>
+<form method="GET" action="{{ url_for('game_routes.quit_game') }}">
+  <button type="submit">Quit</button>
+</form>
 
-    <form method="GET" action="{{ url_for('game_routes.quit_game') }}">
-      <button type="submit">Quit</button>
-    </form>
-
-    {% endblock content %}
-  </body>
-</html>
+{% endblock %}
