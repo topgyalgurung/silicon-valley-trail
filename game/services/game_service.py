@@ -7,10 +7,10 @@ from game.models import GameSession, Location
 from game.extensions import db
 
 
-def save_game(game):
+def save_game(data):
     # commit state to database
+    db.session.add(data)
     db.session.commit()
-    return game
 
 def get_next_location(current_location_id):
     return Location.query.filter(Location.order_index > current_location_id).order_by(Location.order_index).first()

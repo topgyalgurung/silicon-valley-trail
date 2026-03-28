@@ -1,3 +1,8 @@
+# application entry point
+
+import os
+import unittest
+
 from game import create_app
 
 app = create_app()

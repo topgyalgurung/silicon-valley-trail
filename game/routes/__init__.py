@@ -1,0 +1,1 @@
+from .pages import game_routes

@@ -10,7 +10,7 @@
 {% if event.requires_input %}
 <form
   method="POST"
-  action="{{ url_for('game.handle_event', game_id=game.id) }}"
+  action="{{ url_for('pages.handle_event', game_id=game.id) }}"
 >
   {% for option in event.options %}
   <button type="submit" name="choice" value="{{ option.id }}">
@@ -22,7 +22,7 @@
 <p>{{ message }}</p>
 {% endif %}
 
-<form method="POST" action="{{ url_for('game.show_game', game_id=game.id) }}">
+<form method="POST" action="{{ url_for('pages.show_game', game_id=game.id) }}">
   <button type="submit">Enter to continue...</button>
 </form>
 
