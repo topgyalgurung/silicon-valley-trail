@@ -4,6 +4,8 @@ from asyncio import Event
 import random
 from data.mock_api_data import INITIAL_GAME_STATE, EVENTS_BY_LOCATION, ACTION_EFFECTS
 from game.models import GameSession, Location
+from game.services.event_service import pick_event_by_location
+from game.services.weather_service import get_weather_by_city
 from game.extensions import db
 
 def create_new_game():
@@ -64,6 +66,20 @@ def update_game_status(game):
         return game, None, "You have reached the destination"
     return game, None, None
 
+def handle_travel(game, next_location):
+    weather_data = get_weather_by_city(next_location.city_name)
+    weather_summary = weather_data["summary"]
+
+    event = pick_event_by_location(next_location.city_name, weather_summary)
+    if event:
+        game.current_event_key = event["id"]
+        return event
+    events = EVENTS_BY_LOCATION.get(next_location.city_name,[])
+    event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
+    game.current_event_key = event["id"] if event else None
+    return event
+
+
 def apply_effects(game, effects):
     resource_fields = ("cash", "morale", "coffee", "hype", "bugs", "progress")
     for field in resource_fields:
@@ -73,7 +89,6 @@ def apply_effects(game, effects):
 
 def apply_action(action, game):
     effects = ACTION_EFFECTS.get(action, {})
-    event = None 
     apply_effects(game, effects)
 
     next_location = get_next_location(game.current_location_id)
@@ -83,18 +98,18 @@ def apply_action(action, game):
     game.current_location_id = next_location.id
     game.current_day += 1
 
-    if action == "travel":
-        events = EVENTS_BY_LOCATION.get(next_location.city_name,[])
-        event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
-        game.current_event_key = event["key"] if event else None
-    else:
+    if action!="travel":
         game.current_event_key = None
+        save_game(game)
+        return game, None
+    print(f"next_location type: {type(next_location)}, value: {next_location}")
+    event = handle_travel(game, next_location)
     save_game(game)
     return game, event
 
 def apply_current_event_choice(choice, game):
     city_events = EVENTS_BY_LOCATION.get(game.current_location.city_name,[])
-    event = next((e for e in city_events if e["key"] == game.current_event_key), None)
+    event = next((e for e in city_events if e["id"] == game.current_event_key), None)
     if not event:
         return game, None
     if event.get("requires_input"):

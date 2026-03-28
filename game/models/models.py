@@ -39,6 +39,6 @@ class Location(db.Model):
     longitude = db.Column(db.Float)
 
     def __repr__(self):
-        return f"<Location id={self.id} name={self.name}>"
+        return f"<Location id={self.id} name={self.city_name}>"
 
 

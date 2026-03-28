@@ -13,10 +13,7 @@
   </li>
 </ul>
 
-<p>
-  Weather: {{weather_data.weather[0].description}}, {{weather_data.main.temp}}
-  Fahrenheit
-</p>
+<p>Weather: {{weather_data.description}}, {{weather_data.temperature}} °F</p>
 
 {% if message %}
 <p>{{message}}</p>
