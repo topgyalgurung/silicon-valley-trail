@@ -2,9 +2,11 @@ import random
 from flask import Blueprint, render_template, request, redirect, url_for
 
 from services.game_service import apply_action, apply_current_event_choice, save_game
+from services.weather_service import get_weather_by_city
 from game.extensions import db
 from game.models import GameSession, Location
 from data.game_data import EVENTS_BY_LOCATION
+
 
 game_routes = Blueprint("game", __name__)
 
@@ -54,7 +56,8 @@ def intro():
 @game_routes.route("/game", methods=["GET", "POST"])
 def show_game():
     game = get_latest_game() # get latest game session from the database or create a new one if none exists
-    return render_template("pages/game.html", game=game)
+    weather_data = get_weather_by_city(game.current_location.city_name)
+    return render_template("pages/game.html", game=game, weather_data=weather_data)
 
 @game_routes.route("/move", methods=["POST"])
 def handle_move():

@@ -100,18 +100,17 @@ ACTION_EFFECTS = {
     },
     "rest": {
         "morale": 10,
+        "coffee": -5,
     },
     
     "work": {
-        "cash": -100,
         "coffee": -10,
         "bugs": -5, # stretch: calculate bugs based on current bugs and work done
         "morale": -3,
     },
     "marketing": {
         "hype": 8,
-        "coffee": -4,
-        "morale": 3,
+        "cash": -100,
     },
 }
 

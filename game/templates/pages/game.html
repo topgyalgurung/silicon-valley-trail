@@ -8,9 +8,14 @@
   <li>Hype: {{game.hype}}</li>
   <li>Bugs: {{game.bugs}}</li>
   <li>
-    Progress: {{game.progress}} to {{game.destination_location.city_name}}
+    Progress: {{game.progress}} % to {{game.destination_location.city_name}}
   </li>
 </ul>
+
+<p>
+  Weather: {{weather_data.weather[0].description}}, {{weather_data.main.temp}}
+  Celsius
+</p>
 
 <p>What will you do?</p>
 
@@ -23,7 +28,7 @@
   <button name="action" value="work">
     3. Work on product (reduce bugs, use coffee)</button
   ><br /><br />
-  <button name="action" value="network">
+  <button name="action" value="marketing">
     4. Marketing push (increase hype, costs money)</button
   ><br /><br />
   <button name="action" value="save">5. Save game</button><br /><br />
