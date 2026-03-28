@@ -7,7 +7,7 @@ def get_weather_by_city(city_name):
     api_key = Config.OPENWEATHER_API_KEY
     try:
 
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=imperial" # imperial for C and metric for K
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=imperial" # imperial for F and metric for celsius
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()

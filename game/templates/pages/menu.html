@@ -2,10 +2,13 @@
 <h2>{% block title %}Main Menu{% endblock title %}</h2>
 {% endblock header %} {% block content %}
 
-<form method="POST" action="{{url_for('pages.intro')}}">
+<form method="POST" action="{{url_for('pages.new_game')}}">
   <button name="choice" value="1">1. New Game</button><br /><br />
 </form>
-<button name="choice" value="2">2. Load Game</button><br /><br />
+<form method="POST" action="{{url_for('pages.load_game')}}">
+  <button name="choice" value="2">2. Load Game</button><br /><br />
+</form>
+
 <button name="choice" value="3">3. Quit</button>
 
 {% endblock content %}

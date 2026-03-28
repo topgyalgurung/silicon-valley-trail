@@ -1,6 +1,7 @@
 {% extends "base.html"%} {%block content %}
 
 <h2>Day {{game.current_day}} | {{game.current_location.city_name }}</h2>
+<p>{{game.current_location.description}}</p>
 <ul>
   <li>Cash: {{game.cash}}</li>
   <li>Morale: {{game.morale}}</li>
@@ -14,8 +15,12 @@
 
 <p>
   Weather: {{weather_data.weather[0].description}}, {{weather_data.main.temp}}
-  Celsius
+  Fahrenheit
 </p>
+
+{% if message %}
+<p>{{message}}</p>
+{% endif %}
 
 <p>What will you do?</p>
 

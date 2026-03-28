@@ -2,10 +2,37 @@
 
 from asyncio import Event
 import random
-from data.game_data import EVENTS_BY_LOCATION, ACTION_EFFECTS
+from data.mock_api_data import INITIAL_GAME_STATE, EVENTS_BY_LOCATION, ACTION_EFFECTS
 from game.models import GameSession, Location
 from game.extensions import db
 
+def create_new_game():
+    start_location = Location.query.filter_by(city_name="San Jose").first()
+    destination_location = Location.query.filter_by(city_name="San Francisco").first()
+    # create fresh game session with initial state
+    game = GameSession(
+        current_location_id=start_location.id,
+        destination_location_id=destination_location.id,
+        **INITIAL_GAME_STATE
+    )
+    db.session.add(game)
+    db.session.commit()
+    return game
+
+def reset_game(game):
+    start_location = Location.query.filter_by(city_name="San Jose").first()
+    destination_location = Location.query.filter_by(city_name="San Francisco").first()
+
+    if not start_location or not destination_location:
+        raise ValueError("Start or destination location not found")
+    
+    for field, value in INITIAL_GAME_STATE.items():
+        setattr(game, field, value)
+
+    game.current_location_id = start_location.id
+    game.destination_location_id = destination_location.id
+    db.session.commit()
+    return game
 
 def save_game(data):
     # commit state to database
@@ -49,14 +76,14 @@ def apply_action(action, game):
     event = None 
     apply_effects(game, effects)
 
-    if action == "travel":
-        next_location = get_next_location(game.current_location_id)
-        if not next_location:
-            save_game(game)
-            return game,None
-        game.current_location_id = next_location.id
-        game.current_day += 1
+    next_location = get_next_location(game.current_location_id)
+    if not next_location:
+        save_game(game)
+        return game,None
+    game.current_location_id = next_location.id
+    game.current_day += 1
 
+    if action == "travel":
         events = EVENTS_BY_LOCATION.get(next_location.city_name,[])
         event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
         game.current_event_key = event["key"] if event else None

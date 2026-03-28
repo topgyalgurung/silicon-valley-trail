@@ -10,7 +10,7 @@ def create_app():
 
     Creates and configures the Flask application instance using
     a modular architecture with blueprints. Extensions are initialized
-    without storing application-specific state globally.
+    without storing application-specific state globally. avoid circular imports.
     
     Returns:
         Flask: Configured Flask application instance.

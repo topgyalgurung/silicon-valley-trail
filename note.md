@@ -211,9 +211,9 @@ $ pip freeze > requirements.txt
 ### Creating database 
 
 ## db migration (apply database schema changes safely)
-flask app.py db init 
-flask app.py db migrate -m "Initial migration." # initial migration 
-flask app.py db upgrade # apply changes 
+flask db init 
+flask db migrate -m "Initial migration." # initial migration 
+flask db upgrade # apply changes 
 
 export FLASK_APP=game
 export FLASK_APP=1
@@ -224,5 +224,5 @@ flask run # run dev server
 sqlite3 instance/game.db ".tables"
 sqlite3 instance/game.db "SELECT COUNT(*) FROM game_session;"
 sqlite3 instance/game.db "SELECT COUNT(*) FROM locations;"
-sqlite3 instance/game.db "SELECT id, day, city, money, morale FROM game_session;"
+sqlite3 instance/game.db "SELECT id, current_day, status, cash, morale FROM game_session;"
 

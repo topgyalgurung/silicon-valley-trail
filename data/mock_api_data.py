@@ -1,3 +1,15 @@
+INITIAL_GAME_STATE = {
+    "current_day": 1,
+    "status": "in_progress",
+    "cash": 50000, 
+    "morale": 100, # 0-100
+    "coffee": 50, # if stays 0 for 2 turn -> lose
+    "hype": 50,  # 0-100
+    "bugs": 0,
+    "progress": 0, # 0-100
+    "coffee_zero_turns": 0,
+    "current_event_key": None,
+}
 
 EVENTS_BY_LOCATION = {
     "San Jose": [
@@ -42,11 +54,12 @@ EVENTS_BY_LOCATION = {
     "Palo Alto": [
         {
             "key": "vc_meeting",
-            "title": "VC Meeting",
+            "title": "VC Pitch Opportunity",
             "description": "A high-stakes pitch to venture capitalists.",
             "requires_input": True,
             "options": [
-                {"id": "option", "text": "meetin with a VCs", "effect": {
+                {"id": "option", "text": "meeting with a VCs", 
+                "effect": {
                     "cash": 5000,
                     "morale": -10,
                     "coffee": -5,
@@ -101,16 +114,19 @@ ACTION_EFFECTS = {
     "rest": {
         "morale": 10,
         "coffee": -5,
+        "message": "You rested and recovered your morale and coffee.",
     },
     
     "work": {
         "coffee": -10,
         "bugs": -5, # stretch: calculate bugs based on current bugs and work done
         "morale": -3,
+        "message": "You worked on the product and reduced bugs.",
     },
     "marketing": {
         "hype": 8,
         "cash": -100,
+        "message": "You pushed a marketing campaign and increased hype.",
     },
 }
 

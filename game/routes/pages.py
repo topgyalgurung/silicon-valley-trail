@@ -1,12 +1,11 @@
 import random
-from flask import Blueprint, render_template, request, redirect, url_for, abort
+from flask import Blueprint, render_template, request, redirect, url_for, abort, flash
 from jinja2 import TemplateNotFound
 
-from game.services import apply_action, apply_current_event_choice, save_game, get_weather_by_city
+from game.services import apply_action, apply_current_event_choice, save_game, get_weather_by_city, create_new_game, reset_game
 from game.extensions import db
 from game.models import GameSession
-from game.utils import create_new_game
-
+from data.mock_api_data import ACTION_EFFECTS
 # TODO: rate limit the game routes 
 
 game_routes = Blueprint("pages", __name__, template_folder="templates")
@@ -26,12 +25,20 @@ def home():
     except TemplateNotFound:
         abort(404)
 
-@game_routes.route("/new", methods=["GET", "POST"])
-def intro():
-    if request.method == "POST":
-        game = create_new_game()
-        return render_template("pages/intro.html", game_id=game.id)
-    return render_template("pages/intro.html")
+@game_routes.route("/new", methods=["POST"])
+def new_game():
+    game = GameSession.query.first()
+    if game:
+        reset_game(game)
+    game = create_new_game()
+    return render_template("pages/intro.html", game_id=game.id)
+
+@game_routes.route("/load/", methods=["POST"])
+def load_game():
+    game = GameSession.query.order_by(GameSession.id.desc()).first()
+    if not game:
+        return redirect(url_for("pages.home"))
+    return redirect(url_for("pages.show_game", game_id= game.id))
 
 @game_routes.route("/game/<int:game_id>", methods=["GET", "POST"])
 def show_game(game_id):
@@ -41,7 +48,7 @@ def show_game(game_id):
         "pages/game.html", 
         game=game, 
         weather_data=weather_data,
-        game_id=game_id
+        game_id=game_id,
     )
 
 @game_routes.route("/game/<int:game_id>/move", methods=["POST"])
@@ -50,7 +57,7 @@ def handle_move(game_id):
     action = request.form.get("action")
 
     if action == "quit":
-        # reset_game()
+        reset_game(game)
         return redirect(url_for("pages.home"))
 
     if action == "save":
@@ -65,9 +72,10 @@ def handle_move(game_id):
             game=game, 
             event=event
         )
-    return redirect(url_for("pages.show_game", game_id=game.id))
+    message = ACTION_EFFECTS.get(action, {}).get("message")
+    return render_template("pages/event.html", game=game, message=message)
 
-@game_routes.route('/game/<int:game_id>/event', methods=["POST"])
+@game_routes.route('/game/<int:game_id>/event', methods=["GET", "POST"])
 def handle_event(game_id):
     choice = request.form.get("choice")
     game = GameSession.query.get_or_404(game_id)
@@ -78,7 +86,6 @@ def handle_event(game_id):
         message = message, 
         event=None
     )
-
 
 @game_routes.route('/messages/<int:idx>')
 def message(idx):

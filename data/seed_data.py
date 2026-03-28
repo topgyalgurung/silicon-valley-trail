@@ -5,7 +5,7 @@ from game import create_app
 LOCATIONS = [
     {
         "city_name": "San Jose",
-        "description": "Starting point of the startup journey.",
+        "description": "Your startup's humble garage HQ.",
         "order_index": 1,
     },
     {
