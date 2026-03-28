@@ -4,45 +4,14 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from services.game_service import apply_action, apply_current_event_choice, save_game
 from services.weather_service import get_weather_by_city
 from game.extensions import db
-from game.models import GameSession, Location
-from data.game_data import EVENTS_BY_LOCATION
+from game.models import GameSession
+from game.helpers import create_new_game
+
+# TODO: rate limit the game routes 
 
 
 game_routes = Blueprint("game", __name__)
 
-def create_new_game():
-    reset_game()
-    start_location = Location.query.filter_by(city_name="San Jose").first()
-    destination_location = Location.query.filter_by(city_name="San Francisco").first()
-    # create fresh game session with initial state
-    game = GameSession(
-        current_day=1,
-        current_location_id=start_location.id,
-        destination_location_id=destination_location.id,
-        status= "in_progress",
-        cash=50000, 
-        morale=100, # 0-100
-        coffee=50, # if stays 0 for 2 turn -> lose
-        hype=50,  # 0-100
-        bugs=0,
-        progress=0, # 0-100
-        coffee_zero_turns=0,
-        current_event_key=None,
-    )
-    db.session.add(game)
-    db.session.commit()
-    return game
-
-def reset_game():
-    GameSession.query.delete()
-    db.session.commit()
-
-
-def get_latest_game():
-    latest_game = GameSession.query.order_by(GameSession.created_at.desc()).first()
-    if not latest_game:
-        return create_new_game()
-    return latest_game 
 
 @game_routes.route("/")
 def home():
@@ -50,22 +19,29 @@ def home():
 
 @game_routes.route("/new", methods=["GET", "POST"])
 def intro():
-    create_new_game() # create new game in the database when user clicks new game 
+    if request.method == "POST":
+        game = create_new_game()
+        return render_template("pages/intro.html", game_id=game.id)
     return render_template("pages/intro.html")
 
-@game_routes.route("/game", methods=["GET", "POST"])
-def show_game():
-    game = get_latest_game() # get latest game session from the database or create a new one if none exists
+@game_routes.route("/game/<int:game_id>", methods=["GET", "POST"])
+def show_game(game_id):
+    game = GameSession.query.get_or_404(game_id) # get latest game session from the database or create a new one if none exists
     weather_data = get_weather_by_city(game.current_location.city_name)
-    return render_template("pages/game.html", game=game, weather_data=weather_data)
+    return render_template(
+        "pages/game.html", 
+        game=game, 
+        weather_data=weather_data,
+        game_id=game_id
+    )
 
-@game_routes.route("/move", methods=["POST"])
-def handle_move():
+@game_routes.route("/game/<int:game_id>/move", methods=["POST"])
+def handle_move(game_id):
+    game = GameSession.query.get_or_404(game_id)
     action = request.form.get("action")
-    game = get_latest_game()
 
     if action == "quit":
-        reset_game()
+        # reset_game()
         return redirect(url_for("game.home"))
 
     if action == "save":
@@ -75,12 +51,21 @@ def handle_move():
     game, event = apply_action(action, game)
 
     if action == "travel" and event:
-        return render_template("pages/event.html", game=game, event=event)
-    return redirect(url_for("game.show_game"))
+        return render_template(
+            "pages/event.html", 
+            game=game, 
+            event=event
+        )
+    return redirect(url_for("game.show_game", game_id=game.id))
 
-@game_routes.route('/event', methods=["POST"])
-def handle_event():
+@game_routes.route('/game/<int:game_id>/event', methods=["POST"])
+def handle_event(game_id):
     choice = request.form.get("choice")
-    game=get_latest_game()
+    game = GameSession.query.get_or_404(game_id)
     game, message = apply_current_event_choice(choice, game)
-    return render_template("pages/event.html", game=game, message = message, event=None)
+    return render_template(
+        "pages/event.html", 
+        game=game, 
+        message = message, 
+        event=None
+    )

@@ -53,7 +53,7 @@ def apply_action(action, game):
         next_location = get_next_location(game.current_location_id)
         if not next_location:
             save_game(game)
-            return game,None,"You have reached the destination"
+            return game,None
         game.current_location_id = next_location.id
         game.current_day += 1
 
