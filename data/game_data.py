@@ -1,3 +1,4 @@
+
 EVENTS_BY_LOCATION = {
     "San Jose": [
         {
@@ -19,28 +20,25 @@ EVENTS_BY_LOCATION = {
             "description": "You pitch local supporters.",
             "requires_input": True,
             "options": [
-                {"id": "pitch", "text": "Pitch"},
-                {"id": "skip", "text": "Skip"},
-            ],
-            "outcomes": {
-                "pitch": {
+                {"id": "option", "text": "Pitch", "effect": {
                     "cash": 2000,
                     "morale": -5,
                     "coffee": -3,
                     "hype": 8,
                     "bugs": 1,
-                },
-                "skip": {
+                    "message": "You pitched to the local supporters and they loved it! You got a $2000 investment.",
+                }},
+                {"id": "skip", "text": "Skip", "effect": {
                     "cash": 0,
-                    "morale": 0,
+                    "morale": 2,
                     "coffee": 0,
-                    "hype": -2,
+                    "hype": -5,
                     "bugs": 0,
-                },
-            },
+                    "message": "You skipped the pitch and the local supporters didn't like it.",
+                }},
+            ],
         },
     ],
-
     "Palo Alto": [
         {
             "key": "vc_meeting",
@@ -48,30 +46,24 @@ EVENTS_BY_LOCATION = {
             "description": "A high-stakes pitch to venture capitalists.",
             "requires_input": True,
             "options": [
-                {"id": "pitch", "text": "Pitch"},
-                {"id": "skip", "text": "Skip"},
-            ],
-            "outcomes": {
-                "pitch": {
+                {"id": "option", "text": "meetin with a VCs", "effect": {
                     "cash": 5000,
                     "morale": -10,
                     "coffee": -5,
                     "hype": 15,
                     "bugs": 2,
                     "message": "You pitched to the VCs and they loved it! You got a $5000 investment.",
-                },
-                "skip": {
+                }   },
+                {"id": "skip", "text": "Skip", "effect": {
                     "cash": 0,
                     "morale": 2,
                     "coffee": 0,
                     "hype": -5,
                     "bugs": 0,
-                },
-            },
-        },
-        
+                    "message": "You skipped the pitch and the VCs didn't like it.",
+                }},
+            ] },
     ],
-
     "Mountain View": [
         {
             "key": "hackathon_sprint",
@@ -79,26 +71,47 @@ EVENTS_BY_LOCATION = {
             "description": "The team pushes hard to ship features quickly.",
             "requires_input": True,
             "options": [
-                {"id": "sprint", "text": "Sprint"},
-                {"id": "skip", "text": "Skip"},
-            ],
-            "outcomes": {
-                "sprint": {
+                {"id": "option", "text": "Sprint and ship a feature", "effect": {
                     "cash": 1000,
                     "morale": -8,
                     "coffee": -6,
                     "hype": 12,
                     "bugs": 5,
-                },
-                "skip": {
+                    "message": "You sprinted and shipped a feature.",
+                }},
+                {"id": "skip", "text": "Skip", "effect": {
                     "cash": 0,
                     "morale": 3,
                     "coffee": 1,
                     "hype": -3,
                     "bugs": -1,
-                },
-            },
+                    "message": "You skipped the sprint and the feature didn't ship.",
+                }},
+            ],
         },
     ],
+}
+
+ACTION_EFFECTS = {
+    "travel": {
+        "cash": -300,
+        "coffee": -8, # stretch: calculate coffee based on distance
+        "progress": 3,
+    },
+    "rest": {
+        "morale": 10,
+    },
+    
+    "work": {
+        "cash": -100,
+        "coffee": -10,
+        "bugs": -5, # stretch: calculate bugs based on current bugs and work done
+        "morale": -3,
+    },
+    "marketing": {
+        "hype": 8,
+        "coffee": -4,
+        "morale": 3,
+    },
 }
 

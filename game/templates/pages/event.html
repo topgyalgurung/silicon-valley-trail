@@ -8,14 +8,16 @@
 <p>{{event.description}}</p>
 
 {% if event.requires_input %}
-<form method="POST" action="/event">
+<form method="POST" action="{{ url_for('game.handle_event') }}">
   {% for option in event.options %}
   <button type="submit" name="choice" value="{{ option.id }}">
     {{ option.text }}
   </button>
   {% endfor %}
 </form>
-{% endif %} {% else %}
+{% endif %} {% else %} {% if message %}
+<p>{{ message }}</p>
+{% endif %}
 
 <form method="POST" action="{{ url_for('game.show_game') }}">
   <button type="submit">Enter to continue...</button>

@@ -1,10 +1,11 @@
 import random
-from flask import Blueprint, render_template, request, redirect 
+from flask import Blueprint, render_template, request, redirect, url_for
 
-from services.game_service import apply_action, calculate_event_outcome, save_game
+from services.game_service import apply_action, apply_current_event_choice, save_game
 from game.extensions import db
 from game.models import GameSession, Location
 from data.game_data import EVENTS_BY_LOCATION
+
 game_routes = Blueprint("game", __name__)
 
 def create_new_game():
@@ -17,12 +18,12 @@ def create_new_game():
         current_location_id=start_location.id,
         destination_location_id=destination_location.id,
         status= "in_progress",
-        cash=50000,
-        morale=100,
-        coffee=50,
-        hype=50,
+        cash=50000, 
+        morale=100, # 0-100
+        coffee=50, # if stays 0 for 2 turn -> lose
+        hype=50,  # 0-100
         bugs=0,
-        progress=0,
+        progress=0, # 0-100
         coffee_zero_turns=0,
         current_event_key=None,
     )
@@ -41,7 +42,6 @@ def get_latest_game():
         return create_new_game()
     return latest_game 
 
-
 @game_routes.route("/")
 def home():
     return render_template("pages/menu.html")
@@ -56,31 +56,28 @@ def show_game():
     game = get_latest_game() # get latest game session from the database or create a new one if none exists
     return render_template("pages/game.html", game=game)
 
-@game_routes.route("/move", methods=["GET","POST"])
-def move():
-    action = request.form["action"]
+@game_routes.route("/move", methods=["POST"])
+def handle_move():
+    action = request.form.get("action")
     game = get_latest_game()
+
     if action == "quit":
         reset_game()
-        return redirect("/")
-    elif action == "save":
+        return redirect(url_for("game.home"))
+
+    if action == "save":
         save_game(game)
-        return redirect("/")
-        db.session.commit()
-        return render_template("pages/menu.html") # TODO: Save game to file
-    else:
-        game, event = apply_action(action, game)
-        # return render_effect(result)
-        event = None
-        if game.current_event_key:
-            city = game.current_location.city_name
-            events = EVENTS_BY_LOCATION.get(city,[])
-            event = next((e for e in events if e["key"] == game.current_event_key), None)
-        return render_template("pages/event.html", game=game, event=event) # TODO: Apply action and return new game state
+        return redirect(url_for("game.home"))
+    
+    game, event = apply_action(action, game)
+
+    if action == "travel" and event:
+        return render_template("pages/event.html", game=game, event=event)
+    return redirect(url_for("game.show_game"))
 
 @game_routes.route('/event', methods=["POST"])
 def handle_event():
-    choice = request.form["choice"]
-    game = get_latest_game()
-    game = calculate_event_outcome(choice, game)
-    return redirect('/game')
+    choice = request.form.get("choice")
+    game=get_latest_game()
+    game, message = apply_current_event_choice(choice, game)
+    return render_template("pages/event.html", game=game, message = message, event=None)
