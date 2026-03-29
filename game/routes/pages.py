@@ -54,6 +54,7 @@ def load_game():
 
 @game_routes.route("/game/<int:game_id>")
 def show_game(game_id):
+
     game = GameSession.query.get_or_404(game_id) # get latest game session from the database or create a new one if none exists
     weather_data = get_weather_by_city(game.current_location.city_name)
 
@@ -73,11 +74,7 @@ def handle_move(game_id):
     ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
     action = request.form.get("action")
 
-    if action not in ALLOWED_ACTIONS:
-        abort(400, "Invalid action")
-
     game = GameSession.query.get_or_404(game_id)
-    print(f"game loaded successfully: {game}") # test
     
     if action == "quit":
         reset_game(game)
@@ -89,8 +86,6 @@ def handle_move(game_id):
     
     # try:
     result = apply_action(action, game) 
-
-        # game, event = apply_action(action, game)
     # except requests.exceptions.RequestException:
     #     return redirect(url_for("pages.show_game", game_id=game_id))
     # except Exception:
@@ -98,22 +93,34 @@ def handle_move(game_id):
     #     abort(500, "Internal server error")
 
     if result.game_over:
-        return render_template(
-            "pages/message.html",
-            message=result.message
-        )
+        if result.status == "won":
+            return render_template(
+                "pages/game.html", 
+                game=result.game,
+                message=result.message,
+                game_over=result.game_over,
+                game_id=game_id,
+            )
+        else:
+            return render_template(
+                "pages/message.html",
+                message=result.message,
+                game_over=result.game_over,
+                game_id=game_id,
+            )
     if result.event:
         return render_template(
             "pages/event.html",
-            game=result.game,
+            game=game,
             event=result.event,
-            message=result.message
+            message=result.message,
+            action=action
         )
 
     message = ACTION_EFFECTS.get(action, {}).get("message")
     return render_template(
         "pages/event.html",
-        game = result.game,
+        game = game,
         event = None,
         message = message,
         game_over = result.game_over

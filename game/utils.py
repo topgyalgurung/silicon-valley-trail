@@ -1,5 +1,6 @@
 from game.models import Location
 from data.mock_api_data import RESOURCE_LIMITS
+DESTINATION_CITY = "San Francisco"
 
 def get_total_distance_miles():
     locations = Location.query.order_by(Location.order_index.asc()).all()
@@ -9,7 +10,7 @@ def get_next_location(current_location_id):
     current_location = Location.query.get(current_location_id)
     if not current_location:
         return None
-    return Location.query.filter(Location.order_index > current_location_id).order_by(Location.order_index).first()
+    return Location.query.filter(Location.order_index > current_location.order_index).order_by(Location.order_index).first()
 
 def calculate_progress(distance_traveled_miles):
     total_distance_miles = get_total_distance_miles()
@@ -45,15 +46,15 @@ def evaluate_game_status(game):
     """return user facing status message if game is won, lost, coffee zero turns"""
     if game.morale <= 0:
         game.status = "lost"
-        return "You have lost the game. Your morale has collapsed"
+        return game.status, "You have lost the game. Your morale has collapsed"
     if game.cash <= 0:
         game.status = "lost"
-        return game, None, "You have run out of cash. Game over. "
-    if game.progress >= 100:
-        game.status = "won"
-        return "You made it to the destination. Congratulations!"
+        return game.status, "You have run out of cash. Game over. "
+    # if game.progress >= 100: # first need to calculate progress in percentage
+    #     game.status = "won"
+    #     return "You made it to the destination. Congratulations!"
     game.status = "in_progress" # might not need this revisit later might have already handled
-    return None
+    return game.status, None
 
 def check_coffee_warning(game, effects):
     """Return True if coffee warning is triggered"""

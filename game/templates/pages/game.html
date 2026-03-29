@@ -19,7 +19,12 @@
 <p>{{weather_warning}}</p>
 {% endif %} {% if message %}
 <p>{{message}}</p>
-{% endif %}
+{% endif %} {% if game_over %}
+<p>{{ message }}</p>
+<a href="{{ url_for('pages.home') }}">
+  <button type="button">Return to menu</button>
+</a>
+{% else %}
 <p>What will you do?</p>
 
 <form
@@ -40,5 +45,4 @@
   <button name="action" value="save">5. Save game</button><br /><br />
   <button name="action" value="quit">6. Quit to menu</button>
 </form>
-
-{% endblock %}
+{% endif %} {% endblock %}

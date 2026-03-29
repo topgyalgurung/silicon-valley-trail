@@ -223,6 +223,7 @@ flask run # run dev server
 ## To check tables etc in sqlite database 
 sqlite3 instance/game.db ".tables"
 sqlite3 instance/game.db "SELECT COUNT(*) FROM game_session;"
-sqlite3 instance/game.db "SELECT COUNT(*) FROM locations;"
+sqlite3 instance/game.db "SELECT COUNT(*) FROM location;"
 sqlite3 instance/game.db "SELECT id, current_day, status, cash, morale FROM game_session;"
+sqlite3 instance/game.db "SELECT * FROM game_session;"
 

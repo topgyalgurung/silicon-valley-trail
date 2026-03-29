@@ -37,6 +37,7 @@ EVENTS_BY_LOCATION = {
             "name": "Quick Bug Fix Sprint",
             "description": "A few focused hours could reduce bugs.",
             "requires_input": True,
+            "condition": {"bugs":{"min":4}},
             "options": [
                 {"id": "fix", "text": "Fix bugs", "effect": {"bugs": -4, "coffee": -8}},
                 {"id": "ignore", "text": "Ignore for now", "effect": {"progress": 3, "bugs": 2}}
@@ -175,8 +176,9 @@ EVENTS_BY_LOCATION = {
             "name": "Server Outage",
             "description": "A production issue spikes bugs.",
             "requires_input": True,
+            "condition": {"bugs":{"min":6}},
             "options": [
-                {"id": "all_hands", "text": "All hands on deck", "effect": {"bugs": -6, "coffee": -12, "morale": -3}},
+                {"id": "fix", "text": "Fix bugs", "effect": {"bugs": -6, "coffee": -12, "morale": -3}},
                 {"id": "delay_fix", "text": "Delay the fix", "effect": {"bugs": 8, "progress": 2}}
             ]
         },
@@ -323,37 +325,6 @@ EVENTS_BY_LOCATION = {
             "effect": {"progress": -4, "coffee": -6, "morale": -5}
         }
     ],
-
-    "San Francisco": [
-        {
-            "id": "sf_demo_room",
-            "name": "Demo Room Ready",
-            "description": "You finally have a chance to show what the team built.",
-            "requires_input": True,
-            "options": [
-                {"id": "demo", "text": "Demo the product", "effect": {"hype": 15, "money": 500}},
-                {"id": "hold", "text": "Hold for polish", "effect": {"progress": 5}}
-            ]
-        },
-        {
-            "id": "sf_last_bug",
-            "name": "Last-Minute Bug",
-            "description": "One final bug threatens your momentum at the destination.",
-            "requires_input": True,
-            "options": [
-                {"id": "fix", "text": "Fix immediately", "effect": {"bugs": -6, "coffee": -8}},
-                {"id": "ship_anyway", "text": "Ship anyway", "effect": {"progress": 5, "morale": -5}}
-            ]
-        },
-        {
-            "id": "sf_clear_finish",
-            "name": "Clear Final Push",
-            "description": "The weather is on your side for the last step.",
-            "requires_input": False,
-            "weather_conditions": ["Clear", "Sunny"],
-            "effect": {"progress": 5, "morale": 5}
-        }
-    ],
 }
 
 ACTION_EFFECTS = {
@@ -408,9 +379,9 @@ WEATHER_EFFECTS = {
 RESOURCE_LIMITS = {
     "cash": {"min": 0, "max": None},
     "morale": {"min": 0, "max": 100},
-    "coffee": {"min": 0, "max": 50},
+    "coffee": {"min": 0, "max": None},
     "hype": {"min": 0, "max": 100},
-    "bugs": {"min": 0, "max": None},  # or None if you do not want a max
+    "bugs": {"min": 0, "max": None},  
 }
 
 COFFEE_WARNING_EVENT = {
@@ -421,13 +392,13 @@ COFFEE_WARNING_EVENT = {
     "options": [
         {
             "id": "replenish",
-            "text": "Replenish coffee (miss 2 turns)",
-            "effect": {"coffee": 25, "skip_turns": 2},
+            "text": "Replenish coffee (otherwise miss 2 turns)",
+            "effect": {"coffee": 25, "skip_turns": 0}, # no skip turns if replenish coffee
         },
         {
             "id": "risk_it",
             "text": "Risk it and continue",
-            "effect": {},
+            "effect": {"coffee": 0, "skip_turns": 2},
         },
     ],
 }
