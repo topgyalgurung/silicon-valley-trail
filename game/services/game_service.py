@@ -8,6 +8,9 @@ from game.services.event_service import pick_event_by_location
 from game.services.weather_service import get_weather_by_city
 from game.extensions import db
 
+from game.utils import get_next_location, get_total_distance_miles, calculate_progress
+
+
 def create_new_game():
     start_location = Location.query.filter_by(city_name="San Jose").first()
     destination_location = Location.query.filter_by(city_name="San Francisco").first()
@@ -40,9 +43,6 @@ def save_game(data):
     # commit state to database
     db.session.add(data)
     db.session.commit()
-
-def get_next_location(current_location_id):
-    return Location.query.filter(Location.order_index > current_location_id).order_by(Location.order_index).first()
 
 def update_game_status(game):
 
@@ -87,16 +87,25 @@ def apply_effects(game, effects):
             setattr(game, field, getattr(game, field) + effects[field])
 
 
-def apply_action(action, game):
+def apply_action(action, game, message=None):
     effects = ACTION_EFFECTS.get(action, {})
     apply_effects(game, effects)
 
     next_location = get_next_location(game.current_location_id)
     if not next_location:
+        game.status = "won"
         save_game(game)
-        return game,None
+        return game, "You have reached the destination"
     game.current_location_id = next_location.id
     game.current_day += 1
+    game.distance_traveled_miles += next_location.distance_to_next_miles
+    game.progress = calculate_progress(game.distance_traveled_miles)
+
+    if next_location.id == game.destination_location_id:
+        game.progress = 100
+        game.status = "won"
+        save_game(game)
+        return game, "You have reached the destination"
 
     if action!="travel":
         game.current_event_key = None

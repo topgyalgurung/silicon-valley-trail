@@ -4,7 +4,7 @@
 {%if action == "travel"%}
 <p>You are traveling to {{game.current_location.city_name}}</p>
 {% endif %} {% if event %}
-<p>{{event.title}}</p>
+<p>{{event.name}}</p>
 <p>{{event.description}}</p>
 
 {% if event.requires_input %}

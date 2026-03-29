@@ -16,7 +16,7 @@ def page_not_found(error):
     return render_template('404.html'), 404
 
 @game_routes.errorhandler(500)
-def internal_error(error):
+def server_error(error):
     return render_template('500.html'), 500
 
 @game_routes.route("/")
@@ -58,9 +58,12 @@ def show_game(game_id):
 
 @game_routes.route("/game/<int:game_id>/move", methods=["POST"])
 def handle_move(game_id):
-    game = GameSession.query.get_or_404(game_id)
+    try:
+        game = GameSession.query.get_or_404(game_id)
+    except:
+        return {"message": "Game not found"}
     action = request.form.get("action")
-
+    
     if action == "quit":
         reset_game(game)
         return redirect(url_for("pages.home"))
@@ -70,7 +73,7 @@ def handle_move(game_id):
         return redirect(url_for("pages.home"))
     
     try:
-        game, event = apply_action(action, game)
+        game, event = apply_action(action, game, message=None)
     except requests.exceptions.RequestException:
         return redirect(url_for("pages.show_game", game_id=game_id))
     except Exception:
