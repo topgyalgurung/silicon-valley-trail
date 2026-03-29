@@ -1,6 +1,7 @@
 import random
 from flask import Blueprint, render_template, request, redirect, url_for, abort, flash
 from jinja2 import TemplateNotFound
+import requests
 
 from game.services import apply_action, apply_current_event_choice, save_game, get_weather_by_city, create_new_game, reset_game
 from game.extensions import db
@@ -33,7 +34,7 @@ def new_game():
     game = create_new_game()
     return render_template("pages/intro.html", game_id=game.id)
 
-@game_routes.route("/load/", methods=["POST"])
+@game_routes.route("/load", methods=["POST"])
 def load_game():
     game = GameSession.query.order_by(GameSession.id.desc()).first()
     if not game:
@@ -44,6 +45,10 @@ def load_game():
 def show_game(game_id):
     game = GameSession.query.get_or_404(game_id) # get latest game session from the database or create a new one if none exists
     weather_data = get_weather_by_city(game.current_location.city_name)
+
+    weather_warning = None
+    if not weather_data["ok"]:
+        weather_warning = "live weather unavailable. Showing fallback data."
     return render_template(
         "pages/game.html", 
         game=game, 
@@ -64,7 +69,12 @@ def handle_move(game_id):
         save_game(game)
         return redirect(url_for("pages.home"))
     
-    game, event = apply_action(action, game)
+    try:
+        game, event = apply_action(action, game)
+    except requests.exceptions.RequestException:
+        return redirect(url_for("pages.show_game", game_id=game_id))
+    except Exception:
+        game_routes.logger.error("Error applying action: %s", action)
 
     if action == "travel" and event:
         return render_template(

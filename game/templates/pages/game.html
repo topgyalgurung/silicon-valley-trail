@@ -15,7 +15,11 @@
 
 <p>Weather: {{weather_data.description}}, {{weather_data.temperature}} °F</p>
 
-{% if message %}
+{% if weather_warning %}
+<p>{{weather_warning}}</p>
+{% endif %} {% if message %}
+<p>{{message}}</p>
+{% endif %} {% if message %}
 <p>{{message}}</p>
 {% endif %}
 
