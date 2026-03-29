@@ -2,12 +2,12 @@
 
 from asyncio import Event
 import random
-from data.mock_api_data import INITIAL_GAME_STATE, EVENTS_BY_LOCATION, ACTION_EFFECTS, RESOURCE_LIMITS
+from data.mock_api_data import INITIAL_GAME_STATE, EVENTS_BY_LOCATION, ACTION_EFFECTS, RESOURCE_LIMITS, COFFEE_WARNING_EVENT
 from game.models import GameSession, Location
 from game.services.event_service import pick_event_by_location
 from game.services.weather_service import get_weather_by_city
 from game.extensions import db
-from game.utils import get_next_location, clamp_resource, evaluate_game_status
+from game.utils import get_next_location, clamp_resource, evaluate_game_status, check_coffee_warning
 from game.services.result_types import ActionResult
 
 START_CITY = "San Jose"
@@ -61,12 +61,6 @@ def handle_travel(game, next_location):
     game.current_event_key = event["id"] if event else None
     return event # might return weather also here revisit later
 
-def update_derived_state(game):
-    """Update derived fields like progress and coffee_zero_turns"""
-    if game.coffee == 0:
-        game.coffee_zero_turns += 1
-    else:
-        game.coffee_zero_turns = 0
 
 def apply_effects(game, effects):
     """Apply effects to game resources and update derived fields like progress"""
@@ -79,12 +73,25 @@ def apply_effects(game, effects):
         updated_value = clamp_resource(field, new_value)
         setattr(game, field, updated_value) # setattr(game, field, new_value)
         print(f"updated_value: {updated_value}, field: {field}") # test
-    update_derived_state(game) # coffee_zero_turns, progress
+    if game.coffee == 0:
+        game.current_day += 2
 
 
 def apply_action(action, game):
     print(f"applying action: {action} to game")
     effects = ACTION_EFFECTS.get(action, {})
+
+    # check for coffee warning 
+    if check_coffee_warning(game, effects):
+        game.current_event_key = COFFEE_WARNING_EVENT["id"]
+        save_game(game)
+        return ActionResult(
+            game = game, 
+            event = COFFEE_WARNING_EVENT,
+            status = game.status,
+            message = None,
+            game_over = False
+        )
     apply_effects(game, effects)
 
     game.current_day += 1 # increment day on all actions
@@ -133,6 +140,18 @@ def apply_action(action, game):
     )
 
 def apply_current_event_choice(choice, game):
+    
+    if game.current_event_key == "system_coffee_warning":
+        option = next((o for o in COFFEE_WARNING_EVENT["options"] if o["id"] == choice), None)
+        effects = option["effect"]
+
+        skip_turns = effects.pop("skip_turns", 0)
+        game.current_day += skip_turns # add 2 days to current day for 2 skip turns 
+
+        apply_effects(game, effects)
+        save_game(game)
+        return game, option["text"]
+
     city_events = EVENTS_BY_LOCATION.get(game.current_location.city_name,[])
     event = next((e for e in city_events if e["id"] == game.current_event_key), None)
     if not event:

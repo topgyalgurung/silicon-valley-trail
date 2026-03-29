@@ -7,7 +7,6 @@ INITIAL_GAME_STATE = {
     "hype": 50,  # 0-100
     "bugs": 0,
     "progress": 0, # 0-100
-    "coffee_zero_turns": 0,
     "current_event_key": None,
 }
 
@@ -414,3 +413,21 @@ RESOURCE_LIMITS = {
     "bugs": {"min": 0, "max": None},  # or None if you do not want a max
 }
 
+COFFEE_WARNING_EVENT = {
+    "id": "system_coffee_warning",
+    "name": "Coffee Crisis",
+    "description": "Your coffee supply is about to run out! Refuel now or risk losing 2 days.",
+    "requires_input": True,
+    "options": [
+        {
+            "id": "replenish",
+            "text": "Replenish coffee (miss 2 turns)",
+            "effect": {"coffee": 25, "skip_turns": 2},
+        },
+        {
+            "id": "risk_it",
+            "text": "Risk it and continue",
+            "effect": {},
+        },
+    ],
+}

@@ -43,9 +43,6 @@ def clamp_resource(field, new_value):
 
 def evaluate_game_status(game):
     """return user facing status message if game is won, lost, coffee zero turns"""
-    if game.coffee_zero_turns >= 2:
-        game.status = "lost"
-        return game, None, "You have run out of coffee"
     if game.morale <= 0:
         game.status = "lost"
         return "You have lost the game. Your morale has collapsed"
@@ -57,3 +54,11 @@ def evaluate_game_status(game):
         return "You made it to the destination. Congratulations!"
     game.status = "in_progress" # might not need this revisit later might have already handled
     return None
+
+def check_coffee_warning(game, effects):
+    """Return True if coffee warning is triggered"""
+    coffee_change = effects.get("coffee", 0)
+    if coffee_change >= 0:
+        return False
+    else:
+        return game.coffee + coffee_change <=0

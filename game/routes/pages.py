@@ -89,6 +89,7 @@ def handle_move(game_id):
     
     # try:
     result = apply_action(action, game) 
+
         # game, event = apply_action(action, game)
     # except requests.exceptions.RequestException:
     #     return redirect(url_for("pages.show_game", game_id=game_id))
@@ -101,14 +102,14 @@ def handle_move(game_id):
             "pages/message.html",
             message=result.message
         )
-
-    if action == "travel" and result.event:
+    if result.event:
         return render_template(
-            "pages/event.html", 
-            game=result.game, 
+            "pages/event.html",
+            game=result.game,
             event=result.event,
             message=result.message
-        )   
+        )
+
     message = ACTION_EFFECTS.get(action, {}).get("message")
     return render_template(
         "pages/event.html",
