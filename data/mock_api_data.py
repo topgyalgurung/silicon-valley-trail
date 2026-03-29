@@ -325,6 +325,18 @@ EVENTS_BY_LOCATION = {
             "effect": {"progress": -4, "coffee": -6, "morale": -5}
         }
     ],
+    "San Francisco": [
+        {
+            "id": "sf_demo_room",
+            "name": "Demo Room Ready",
+            "description": "You finally have a chance to show what the team built.",
+            "requires_input": True,
+            "options": [
+                {"id": "demo", "text": "Demo the product", "effect": {"hype": 15, "money": 500}},
+                {"id": "hold", "text": "Hold for polish", "effect": {"progress": 5}}
+            ]
+        }
+    ]
 }
 
 ACTION_EFFECTS = {
@@ -393,7 +405,7 @@ COFFEE_WARNING_EVENT = {
         {
             "id": "replenish",
             "text": "Replenish coffee (otherwise miss 2 turns)",
-            "effect": {"coffee": 25, "skip_turns": 0}, # no skip turns if replenish coffee
+            "effect": {"coffee": 25, "skip_turns": 1}, # no skip turns if replenish coffee
         },
         {
             "id": "risk_it",
