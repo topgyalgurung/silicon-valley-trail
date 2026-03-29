@@ -16,6 +16,23 @@ class GameSession(db.Model):
     coffee_zero_turns = db.Column(db.Integer, default=0)
     current_event_key = db.Column(db.String(100), nullable=True) # presented/selected event 
 
+    # cache weather data for the current location
+    # weather_summary = db.Column(db.String(100), nullable=True)
+    # weather_temp_c = db.Column(db.Float, nullable=True)
+    # weather_fetched_at = db.Column(db.DateTime, nullable=True)
+
+    current_location = db.relationship(
+        "Location",
+        foreign_keys=[current_location_id],
+        back_populates="game_sessions",
+    )
+
+    destination_location = db.relationship(
+        "Location",
+        foreign_keys=[destination_location_id],
+        back_populates="destination_game_sessions",
+    )
+
     # Resource columns
     cash = db.Column(db.Integer, default=50000)
     morale = db.Column(db.Integer, default=100)
@@ -23,8 +40,6 @@ class GameSession(db.Model):
     hype = db.Column(db.Integer, default=50)
     bugs = db.Column(db.Integer, default=0)
 
-    current_location = db.relationship('Location', foreign_keys=[current_location_id])
-    destination_location = db.relationship('Location', foreign_keys=[destination_location_id])
     created_at = db.Column(db.DateTime, default=db.func.now())
 
     def __repr__(self):
@@ -42,6 +57,18 @@ class Location(db.Model):
 
     # distance from this city to next city 
     distance_to_next_miles = db.Column(db.Float, nullable=True)
+
+    game_sessions = db.relationship(
+        "GameSession",
+        foreign_keys=[GameSession.current_location_id],
+        back_populates="current_location",
+    )
+
+    destination_game_sessions = db.relationship(
+        "GameSession",
+        foreign_keys=[GameSession.destination_location_id],
+        back_populates="destination_location",
+    )
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 

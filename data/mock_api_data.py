@@ -382,3 +382,35 @@ ACTION_EFFECTS = {
     },
 }
 
+MOCK_WEATHER = {
+    "San Jose": "Clear",
+    "Santa Clara": "Sunny",
+    "Sunnyvale": "Clouds",
+    "Mountain View": "Rain",
+    "Palo Alto": "Clear",
+    "Menlo Park": "Clouds",
+    "Redwood City": "Windy",
+    "San Mateo": "Clouds",
+    "Burlingame": "Clear",
+    "San Bruno": "Fog",
+    "Daly City": "Fog",
+    "San Francisco": "Fog"
+}
+
+WEATHER_EFFECTS = {
+    "Rain": {"cash": -200, "morale": -3, "coffee": -5},
+    "Fog": {"morale": -2, "coffee": -3},
+    "Clouds": {"morale": -1},
+    "Windy": {"coffee": -2, "morale": -2},
+    "Clear": {},
+    "Sunny": {"morale": 2},
+}
+
+RESOURCE_LIMITS = {
+    "cash": {"min": 0, "max": None},
+    "morale": {"min": 0, "max": 100},
+    "coffee": {"min": 0, "max": 50},
+    "hype": {"min": 0, "max": 100},
+    "bugs": {"min": 0, "max": None},  # or None if you do not want a max
+}
+

@@ -2,14 +2,17 @@
 
 from asyncio import Event
 import random
-from data.mock_api_data import INITIAL_GAME_STATE, EVENTS_BY_LOCATION, ACTION_EFFECTS
+from data.mock_api_data import INITIAL_GAME_STATE, EVENTS_BY_LOCATION, ACTION_EFFECTS, RESOURCE_LIMITS
 from game.models import GameSession, Location
 from game.services.event_service import pick_event_by_location
 from game.services.weather_service import get_weather_by_city
 from game.extensions import db
+from game.utils import get_next_location, clamp_resource, evaluate_game_status
+from game.services.result_types import ActionResult
 
-from game.utils import get_next_location, get_total_distance_miles, calculate_progress
-
+START_CITY = "San Jose"
+DESTINATION_CITY = "San Francisco"
+RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs", "progress")
 
 def create_new_game():
     start_location = Location.query.filter_by(city_name="San Jose").first()
@@ -25,8 +28,8 @@ def create_new_game():
     return game
 
 def reset_game(game):
-    start_location = Location.query.filter_by(city_name="San Jose").first()
-    destination_location = Location.query.filter_by(city_name="San Francisco").first()
+    start_location = Location.query.filter_by(city_name=START_CITY).first()
+    destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
 
     if not start_location or not destination_location:
         raise ValueError("Start or destination location not found")
@@ -44,77 +47,90 @@ def save_game(data):
     db.session.add(data)
     db.session.commit()
 
-def update_game_status(game):
-
-    if game.coffee == 0:
-        game.coffee_zero_turns += 1
-    if game.coffee_zero_turns >= 2:
-        game.status = "lost"
-        save_game(game)
-        return game, None, "You have run out of coffee"
-    if game.morale <= 0:
-        game.status = "lost"
-        save_game(game)
-        return game, None, "Your morale has collapsed"
-    if game.cash <= 0:
-        game.status = "lost"
-        save_game(game)
-        return game, None, "You have run out of cash"
-    if game.progress >= 100:
-        game.status = "won"
-        save_game(game)
-        return game, None, "You have reached the destination"
-    return game, None, None
 
 def handle_travel(game, next_location):
     weather_data = get_weather_by_city(next_location.city_name)
     weather_summary = weather_data["summary"]
 
     event = pick_event_by_location(next_location.city_name, weather_summary)
-    if event:
-        game.current_event_key = event["id"]
-        return event
-    events = EVENTS_BY_LOCATION.get(next_location.city_name,[])
-    event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
-    game.current_event_key = event["id"] if event else None
-    return event
+    
+    if not event: 
+        events = EVENTS_BY_LOCATION.get(next_location.city_name,[])
+        event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
 
+    game.current_event_key = event["id"] if event else None
+    return event # might return weather also here revisit later
+
+def update_derived_state(game):
+    """Update derived fields like progress and coffee_zero_turns"""
+    if game.coffee == 0:
+        game.coffee_zero_turns += 1
+    else:
+        game.coffee_zero_turns = 0
 
 def apply_effects(game, effects):
-    resource_fields = ("cash", "morale", "coffee", "hype", "bugs", "progress")
-    for field in resource_fields:
-        if field in effects:
-            setattr(game, field, getattr(game, field) + effects[field])
+    """Apply effects to game resources and update derived fields like progress"""
+    for field in RESOURCE_FIELDS:
+        if field not in effects:
+            continue
+        current_value = getattr(game, field)
+        print(f"current_value: {current_value}, field: {field}")
+        new_value =  current_value + effects[field]
+        updated_value = clamp_resource(field, new_value)
+        setattr(game, field, updated_value) # setattr(game, field, new_value)
+        print(f"updated_value: {updated_value}, field: {field}") # test
+    update_derived_state(game) # coffee_zero_turns, progress
 
 
-def apply_action(action, game, message=None):
+def apply_action(action, game):
+    print(f"applying action: {action} to game")
     effects = ACTION_EFFECTS.get(action, {})
     apply_effects(game, effects)
 
-    next_location = get_next_location(game.current_location_id)
-    if not next_location:
-        game.status = "won"
-        save_game(game)
-        return game, "You have reached the destination"
-    game.current_location_id = next_location.id
-    game.current_day += 1
-    game.distance_traveled_miles += next_location.distance_to_next_miles
-    game.progress = calculate_progress(game.distance_traveled_miles)
+    game.current_day += 1 # increment day on all actions
+    status_message = evaluate_game_status(game)
 
-    if next_location.id == game.destination_location_id:
-        game.progress = 100
-        game.status = "won"
-        save_game(game)
-        return game, "You have reached the destination"
+    if game.status != "in_progress":
+        return ActionResult(
+            game=game,
+            event=None,
+            status=game.status,
+            message= status_message,
+            game_over=True
+        )
 
     if action!="travel":
         game.current_event_key = None
         save_game(game)
-        return game, None
-    print(f"next_location type: {type(next_location)}, value: {next_location}")
+        return ActionResult(
+            game=game,
+            event=None,
+            message=None,
+            status=game.status,
+            game_over=False
+        )
+    next_location = get_next_location(game.current_location_id)
+    if not next_location:
+        game.status = "won"
+        save_game(game) # save game to see resources after winning
+        return ActionResult(
+            game=game,
+            status="won",
+            message="You made it to the destination. Congratulations!",
+            game_over=True
+        )
+    game.current_location_id = next_location.id # update current location
+
     event = handle_travel(game, next_location)
+    status_message = evaluate_game_status(game) # check after travel events choices effects on game status
     save_game(game)
-    return game, event
+    return ActionResult(
+        game=game,
+        event=event,
+        status=game.status,
+        message=status_message,
+        game_over=False
+    )
 
 def apply_current_event_choice(choice, game):
     city_events = EVENTS_BY_LOCATION.get(game.current_location.city_name,[])

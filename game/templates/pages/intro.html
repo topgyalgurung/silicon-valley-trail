@@ -1,11 +1,9 @@
-{% extends 'base.html' %} {% block header %}
+{% extends 'base.html' %} {%block content %}
 
 <p>
   Your scrappy startup team is embarking on a journey from San Jose to San
   Francisco to pitch a Series A funding!
 </p>
-
-{% endblock header %} {%block content %}
 
 <p>Manage your resources wisely:</p>
 <ul>
@@ -19,8 +17,9 @@
 <p>Good luck, founder !</p>
 
 <p>Press Enter to begin your journey...</p>
+
 {% if game_id %}
-<form method="POST" action="{{ url_for('pages.show_game', game_id=game_id) }}">
-  <button type="submit">Start Journey</button>
-</form>
-{% endif %} {%endblock content %}
+<a href="{{ url_for('pages.show_game', game_id=game_id) }}">
+  <button>Start Journey</button></a
+>
+{% endif %} {% endblock %}

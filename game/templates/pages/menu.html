@@ -2,13 +2,18 @@
 <h2>{% block title %}Main Menu{% endblock title %}</h2>
 {% endblock header %} {% block content %}
 
-<form method="POST" action="{{url_for('pages.new_game')}}">
-  <button name="choice" value="1">1. New Game</button><br /><br />
-</form>
-<form method="POST" action="{{url_for('pages.load_game')}}">
-  <button name="choice" value="2">2. Load Game</button><br /><br />
-</form>
+<a href="{{ url_for('pages.new_game') }}">
+  <button>1. New Game</button>
+</a>
+<br /><br />
 
-<button name="choice" value="3">3. Quit</button>
+<a href="{{ url_for('pages.load_game') }}">
+  <button>2. Load Game</button>
+</a>
+<br /><br />
+
+<a href="{{ url_for('pages.quit_game') }}">
+  <button>3. Quit</button>
+</a>
 
 {% endblock content %}
