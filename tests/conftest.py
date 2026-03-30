@@ -8,8 +8,7 @@ from game.models import Location, GameSession
 
 @pytest.fixture() # run before each test function
 def app():
-
-    
+ 
     app = create_app('testing')
 
     with app.app_context():

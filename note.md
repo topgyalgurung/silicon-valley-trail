@@ -241,3 +241,8 @@ Run tests with:
 $ coverage run -m pytest
 $ pytest -v # more details
 $ pytest tests/test_name.py -v # run single file
+pytest tests/test-actions.py - pass 
+pytest tests/test-events.py - pass
+pytest tests/test-status.py - pass 
+pytest tests/test-weather.py - pass 
+
