@@ -36,7 +36,7 @@ def evaluate_game_status(game):
         return game.status, "You have run out of cash. Game over. "
     if game.current_location_id == game.destination_location_id:
         game.status = "won"
-        return game.status, "You have reached the destination. Congratulations!"
+        return game.status, "You have reached the destination. Let's pitch for your Series A funding! Congratulations!"
     return game.status, None
 
 def check_coffee_warning(game, effects):

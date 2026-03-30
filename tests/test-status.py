@@ -27,3 +27,4 @@ def test_cash_at_one_still_shows_in_progress(sample_game):
     game_status, message = evaluate_game_status(sample_game)
     assert game_status == "in_progress"
     assert message is None
+

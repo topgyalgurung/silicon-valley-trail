@@ -327,14 +327,7 @@ EVENTS_BY_LOCATION = {
     ],
     "San Francisco": [
         {
-            "id": "sf_demo_room",
-            "name": "Demo Room Ready",
-            "description": "You finally have a chance to show what the team built.",
-            "requires_input": True,
-            "options": [
-                {"id": "demo", "text": "Demo the product", "effect": {"hype": 15, "money": 500}},
-                {"id": "hold", "text": "Hold for polish", "effect": {"progress": 5}}
-            ]
+        
         }
     ]
 }

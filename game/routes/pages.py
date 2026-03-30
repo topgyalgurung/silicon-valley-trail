@@ -40,7 +40,6 @@ def load_game():
 
 @game_routes.route("/game/<int:game_id>")
 def show_game(game_id):
-
     game = GameSession.query.get_or_404(game_id) # get latest game session from the database or create a new one if none exists
     weather_data = get_weather_by_city(game.current_location.city_name)
 
@@ -62,6 +61,7 @@ def handle_move(game_id):
     if action not in ALLOWED_ACTIONS:
         abort(400, "Invalid action")
 
+    # Load the current game session from the database or return 404 if not found
     game = GameSession.query.get_or_404(game_id)
     
     if action == "quit":
@@ -81,9 +81,9 @@ def handle_move(game_id):
         abort(500, "Internal server error")
 
     if result.game_over:
-        template = "pages/game.html" if result.status == "won" else "pages/message.html"
+        # template = "pages/game.html" if result.status == "won" else "pages/message.html"
         return render_template(
-            template, 
+            "pages/message.html", 
             game=result.game, 
             message=result.message, 
             game_over=result.game_over, 
@@ -92,20 +92,20 @@ def handle_move(game_id):
     if result.event:
         return render_template(
             "pages/event.html", 
-            game=game,
+            game=result.game,
             event=result.event,
             message=result.message,
             action=action
         )
 
-    message = ACTION_EFFECTS.get(action, {}).get("message")
-    return render_template(
-        "pages/event.html",
-        game = game,
-        event = None,
-        message = message,
-        game_over = result.game_over
-    )
+    # message = ACTION_EFFECTS.get(action, {}).get("message")
+    # return render_template(
+    #     "pages/message.html",
+    #     game = game,
+    #     event = None,
+    #     message = message,
+    #     game_over = result.game_over
+    # )
 
 
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])

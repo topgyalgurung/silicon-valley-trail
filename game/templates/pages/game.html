@@ -13,18 +13,34 @@
   </li>
 </ul>
 
-<p>Weather: {{weather_data.description}}, {{weather_data.temperature}} °F</p>
+{% if weather_data %}
+<p>
+  Weather: {{ weather_data.description }}, {{ weather_data.temperature }} °F
+</p>
+{% else %}
+<p>Weather: unavailable</p>
+{% endif %}
 
+<!-- weather warning -->
 {% if weather_warning %}
 <p>{{weather_warning}}</p>
-{% endif %} {% if message %}
+{% endif %}
+
+<!-- message -->
+{% if message %}
 <p>{{message}}</p>
-{% endif %} {% if game_over %}
+{% endif %}
+
+<!-- game over -->
+{% if game_over %}
 <p>{{ message }}</p>
 <a href="{{ url_for('pages.home') }}">
   <button type="button">Return to menu</button>
 </a>
 {% else %}
+
+<!-- actions -->
+
 <p>What will you do?</p>
 
 <form

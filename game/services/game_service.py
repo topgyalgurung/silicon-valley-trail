@@ -8,7 +8,8 @@ from data.mock_api_data import EVENTS_BY_LOCATION, ACTION_EFFECTS, COFFEE_WARNIN
 from game.services.result_types import ActionResult
 from game.extensions import db
 
-START_CITY = "San Jose"
+START_CITY = "San Jose" 
+START_CITY_TEST = "Daly City"
 DESTINATION_CITY = "San Francisco"
 RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs", "progress")
 
@@ -17,7 +18,7 @@ def save_game(data):
     db.session.commit()
 
 def create_new_game():
-    start_location = Location.query.filter_by(city_name=START_CITY).first()
+    start_location = Location.query.filter_by(city_name=START_CITY_TEST).first()
     destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
 
     game = GameSession(
@@ -30,7 +31,7 @@ def create_new_game():
     return game
 
 def reset_game(game):
-    start_location = Location.query.filter_by(city_name=START_CITY).first()
+    start_location = Location.query.filter_by(city_name=START_CITY_TEST).first()
     destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
 
     if not start_location or not destination_location:
@@ -98,14 +99,14 @@ def apply_action(action, game):
     game.current_location_id = next_location.id
 
     event = handle_travel(game, next_location)
-    status_message = evaluate_game_status(game) 
+    status, status_message = evaluate_game_status(game) 
     save_game(game)
     return ActionResult(
         game=game,
         event=event,
-        status=game.status,
+        status=status,
         message=status_message,
-        game_over=False
+        game_over=game.status != "in_progress"
     )
     
 def handle_travel(game, next_location):
