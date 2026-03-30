@@ -9,14 +9,19 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 
+class DevelopmentConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.getenv('DEV_DATABASE_URL') or'sqlite:///dev.db'
 
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     OPENWEATHER_API_KEY = 'test_openweather_api_key'
 
 
-# Development Config
-# Production Config
+config = {
+    'development': DevelopmentConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig,
+}

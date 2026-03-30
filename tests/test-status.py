@@ -1,0 +1,29 @@
+from game.services.game_service import evaluate_game_status
+from game.models import Location
+
+def test_game_loses_when_cash_reaches_zero(sample_game):
+    sample_game.cash = 0
+
+    game_status,message = evaluate_game_status(sample_game)
+
+    assert game_status == "lost"
+    assert sample_game.status == "lost"
+
+
+def test_game_loses_when_morale_reaches_zero(sample_game):
+    sample_game.morale = 0
+
+    game_status, message = evaluate_game_status(sample_game)
+
+    assert game_status == "lost"
+    assert sample_game.status == "lost"
+
+
+# def test_game_wins_when_reaching_destination(sample_game):
+#     destination = Location.query.filter_by(city_name="San Francisco").first()
+#     sample_game.current_location_id = destination.id
+
+#     message = evaluate_game_status(sample_game)
+
+#     assert sample_game.status == "won"
+#     assert "win" in message.lower() or "success" in message.lower()

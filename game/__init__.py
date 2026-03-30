@@ -1,10 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
 from .extensions import db, migrate
-from .config import Config
+from .config import Config, config as config_map
 from . import routes
 
-def create_app():
+def create_app(config_name="default"):
     """
     Application factory function.
 
@@ -19,7 +19,7 @@ def create_app():
     CORS(app)
 
     try:
-        app.config.from_object(Config) # configure app with config 
+        app.config.from_object(config_map.get(config_name, Config)) # configure app with config 
     except IOError:
         print("Error loading config: .env file not found")
         raise
@@ -31,19 +31,25 @@ def create_app():
     app.register_blueprint(routes.game_routes)
 
     # register error handlers and request callbacks 
-
-    @app.route("/test/")
-    def test_page():
-        return '<h1> Testing the Flask Application Factory Pattern</h1>'
-
-    # configure logging 
+    register_error_handlers(app)
 
     # create database tables within app context(dev only)
-    with app.app_context(): 
-        db.create_all()
-        from data.seed_data import seed_locations
-        seed_locations()
-        print("Database seeded successfully")
+    if not app.config.get('TESTING'):
+        with app.app_context(): 
+            db.create_all()
+            from data.seed_data import seed_locations
+            seed_locations()
+            print("Database seeded successfully")
 
     return app
 
+def register_error_handlers(app):
+    """register custom error handlers for the application"""
+    @app.errorhandler(404)
+    def not_found(error):
+        return {'error': 'Resource Not Found'}, 404
+
+    @app.errorhandler(500)
+    def server_error(error):
+        db.session.rollback()
+        return {'error': 'Internal Server Error'}, 500

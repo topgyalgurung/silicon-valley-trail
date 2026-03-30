@@ -188,20 +188,19 @@ python -m pip install flask
 
 ### Run:
 
+- flask run 
+- python app.py
+- python -m flask --app game run --port 8000 --debug
+- flask --app game run --port 8000 --debug
 
 ```bash
 bash start.sh
 chmod +x start.sh
 ./start.sh 
-
-
-python -m flask --app game run --port 8000 --debug
-flask --app game run --port 8000 --debug
 ```
-or python app.py 
 
-Generate requirements file:
-
+#### Generate requirements file:
+each library installation - dont forget to add into requirement txt 
 ```bash
 $ pip freeze > requirements.txt
 ```
@@ -227,3 +226,18 @@ sqlite3 instance/game.db "SELECT COUNT(*) FROM location;"
 sqlite3 instance/game.db "SELECT id, current_day, status, cash, morale FROM game_session;"
 sqlite3 instance/game.db "SELECT * FROM game_session;"
 
+### testing 
+
+This project includes unit tests for critical game logic using pytest, including:
+
+- resource updates
+- win/lose conditions
+- turn progression
+- travel behavior
+- event choice handling
+
+Run tests with:
+
+$ coverage run -m pytest
+$ pytest -v # more details
+$ pytest tests/test_name.py -v # run single file

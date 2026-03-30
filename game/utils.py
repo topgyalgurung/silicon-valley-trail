@@ -50,10 +50,12 @@ def evaluate_game_status(game):
     if game.cash <= 0:
         game.status = "lost"
         return game.status, "You have run out of cash. Game over. "
+    if game.current_location_id == game.destination_location_id:
+        game.status = "won"
+        return game.status, "You have reached the destination. Congratulations!"
     # if game.progress >= 100: # first need to calculate progress in percentage
     #     game.status = "won"
     #     return "You made it to the destination. Congratulations!"
-    game.status = "in_progress" # might not need this revisit later might have already handled
     return game.status, None
 
 def check_coffee_warning(game, effects):

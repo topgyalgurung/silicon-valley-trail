@@ -107,14 +107,6 @@ def apply_action(action, game):
             game_over=False
         )
     next_location = get_next_location(game.current_location_id)
-    if next_location.city_name == DESTINATION_CITY:
-        return ActionResult(
-            game=game,
-            event=None,
-            status="won",
-            message=None,
-            game_over=True
-        )
     game.current_location_id = next_location.id # update current location
 
     event = handle_travel(game, next_location)
