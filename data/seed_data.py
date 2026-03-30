@@ -1,6 +1,5 @@
 from game.extensions import db
 from game.models import Location
-from game import create_app
 
 LOCATIONS = [
     {
@@ -78,18 +77,19 @@ LOCATIONS = [
 ]
 def seed_locations():
     for data in LOCATIONS:
-        exists = Location.query.filter_by(city_name=data["city_name"]).first()
-        if not exists: # insert only if location does not exist
-            location = Location(**data)
-            db.session.add(location)
+        exists = {loc.city_name for loc in Location.query.all()}
+        new_locations = [Location(**loc) for loc in LOCATIONS if loc["city_name"] not in exists]
+        if new_locations:
+            db.session.add_all(new_locations)
             db.session.commit()
 
 if __name__ == "__main__":
+    from game import create_app
+
     print("Seeding locations...")
     app = create_app()
     with app.app_context():
         db.create_all()
         seed_locations()  
         print("Locations seeded successfully")
-        db.session.close()
-        exit(0)
+

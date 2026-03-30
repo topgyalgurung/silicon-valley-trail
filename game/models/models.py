@@ -39,10 +39,10 @@ class GameSession(db.Model):
     hype = db.Column(db.Integer, default=50)
     bugs = db.Column(db.Integer, default=0)
 
-    created_at = db.Column(db.DateTime, default=db.func.now())
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
-        return '<GameSession %r>' % self.id
+        return f'<GameSession {self.id}>'
 
 class Location(db.Model):
     __tablename__ = 'location'
@@ -72,5 +72,5 @@ class Location(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def __repr__(self):
-        return '<Location %r>' % self.city_name
+        return f'<Location {self.city_name}>'
 

@@ -1,8 +1,5 @@
-import random
-from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app
-from jinja2 import TemplateNotFound
 import requests
-
+from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app
 from game.services import (
     apply_action, 
     apply_current_event_choice, 
@@ -11,23 +8,12 @@ from game.services import (
     create_new_game, 
     reset_game
 )
-from game.extensions import db
 from game.models import GameSession
 from data.mock_api_data import ACTION_EFFECTS
 
 game_routes = Blueprint("pages", __name__, template_folder="templates")
 
-@game_routes.errorhandler(404)
-def page_not_found(error):
-    return render_template('errors/404.html'), 404
-
-@game_routes.errorhandler(500)
-def server_error(error):
-    return render_template('errors/500.html'), 500
-
-@game_routes.app_errorhandler(TemplateNotFound)
-def handle_template_not_found(e):
-    return render_template('404.html'), 404
+ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
 
 @game_routes.route("/")
 def home():
@@ -71,8 +57,10 @@ def show_game(game_id):
 
 @game_routes.route("/game/<int:game_id>/move", methods=["POST"])
 def handle_move(game_id):
-    ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
     action = request.form.get("action")
+
+    if action not in ALLOWED_ACTIONS:
+        abort(400, "Invalid action")
 
     game = GameSession.query.get_or_404(game_id)
     
@@ -84,33 +72,26 @@ def handle_move(game_id):
         save_game(game)
         return redirect(url_for("pages.home"))
     
-    # try:
-    result = apply_action(action, game) 
-    # except requests.exceptions.RequestException:
-    #     return redirect(url_for("pages.show_game", game_id=game_id))
-    # except Exception:
-    #     current_app.logger.error("Error applying action: %s", action)
-    #     abort(500, "Internal server error")
+    try:
+        result = apply_action(action, game) 
+    except requests.exceptions.RequestException:
+        return redirect(url_for("pages.show_game", game_id=game_id))
+    except Exception:
+        current_app.logger.error("Error applying action: %s", action)
+        abort(500, "Internal server error")
 
     if result.game_over:
-        if result.status == "won":
-            return render_template(
-                "pages/game.html", 
-                game=result.game,
-                message=result.message,
-                game_over=result.game_over,
-                game_id=game_id,
-            )
-        else:
-            return render_template(
-                "pages/message.html",
-                message=result.message,
-                game_over=result.game_over,
-                game_id=game_id,
-            )
+        template = "pages/game.html" if result.status == "won" else "pages/message.html"
+        return render_template(
+            template, 
+            game=result.game, 
+            message=result.message, 
+            game_over=result.game_over, 
+            game_id=game_id
+        )
     if result.event:
         return render_template(
-            "pages/event.html",
+            "pages/event.html", 
             game=game,
             event=result.event,
             message=result.message,
@@ -127,7 +108,7 @@ def handle_move(game_id):
     )
 
 
-@game_routes.route('/game/<int:game_id>/event', methods=["GET", "POST"])
+@game_routes.route('/game/<int:game_id>/event', methods=["POST"])
 def handle_event(game_id):
     choice = request.form.get("choice")
     game = GameSession.query.get_or_404(game_id)

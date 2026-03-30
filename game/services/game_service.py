@@ -1,32 +1,25 @@
-# business logic 
-
-from asyncio import Event
 import random
 
 from game.models import GameSession, Location
 from game.services.event_service import pick_event_by_location
 from game.services.weather_service import get_weather_by_city
-
 from game.utils import get_next_location, clamp_resource, evaluate_game_status, check_coffee_warning
 from data.mock_api_data import EVENTS_BY_LOCATION, ACTION_EFFECTS, COFFEE_WARNING_EVENT, INITIAL_GAME_STATE
 from game.services.result_types import ActionResult
-
 from game.extensions import db
-
 
 START_CITY = "San Jose"
 DESTINATION_CITY = "San Francisco"
 RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs", "progress")
 
 def save_game(data):
-    # commit state to database
     db.session.add(data)
     db.session.commit()
 
 def create_new_game():
-    start_location = Location.query.filter_by(city_name="San Jose").first()
-    destination_location = Location.query.filter_by(city_name="San Francisco").first()
-    # create fresh game session with initial state
+    start_location = Location.query.filter_by(city_name=START_CITY).first()
+    destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
+
     game = GameSession(
         current_location_id=start_location.id,
         destination_location_id=destination_location.id,
@@ -57,23 +50,18 @@ def apply_effects(game, effects):
         if field not in effects:
             continue
         current_value = getattr(game, field)
-        print(f"current_value: {current_value}, field: {field}")
         new_value =  current_value + effects[field]
-        updated_value = clamp_resource(field, new_value)
-        setattr(game, field, updated_value) # setattr(game, field, new_value)
-        print(f"updated_value: {updated_value}, field: {field}") # test
+        setattr(game, field, clamp_resource(field, new_value))
+    
     if game.coffee == 0:
         game.current_day += 2
 
 
 def apply_action(action, game):
-    print(f"applying action: {action} to game")
     effects = ACTION_EFFECTS.get(action, {})
 
-    # check for coffee warning 
     if check_coffee_warning(game, effects):
         game.current_event_key = COFFEE_WARNING_EVENT["id"]
-
         save_game(game)
         return ActionResult(
             game = game, 
@@ -82,10 +70,10 @@ def apply_action(action, game):
             message = None,
             game_over = False
         )
-    apply_effects(game, effects)
 
-    game.current_day += 1 # increment day on all actions
-    game_status, status_message = evaluate_game_status(game)
+    apply_effects(game, effects)
+    game.current_day += 1 
+    _, status_message = evaluate_game_status(game)
 
     if game.status != "in_progress":
         return ActionResult(
@@ -96,7 +84,7 @@ def apply_action(action, game):
             game_over=True
         )
 
-    if action!="travel":
+    if action != "travel":
         game.current_event_key = None
         save_game(game)
         return ActionResult(
@@ -107,10 +95,10 @@ def apply_action(action, game):
             game_over=False
         )
     next_location = get_next_location(game.current_location_id)
-    game.current_location_id = next_location.id # update current location
+    game.current_location_id = next_location.id
 
     event = handle_travel(game, next_location)
-    status_message = evaluate_game_status(game) # check after travel events choices effects on game status
+    status_message = evaluate_game_status(game) 
     save_game(game)
     return ActionResult(
         game=game,
@@ -131,17 +119,18 @@ def handle_travel(game, next_location):
         event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
 
     game.current_event_key = event["id"] if event else None
-    return event # might return weather also here revisit later
-
+    return event 
 
 def apply_current_event_choice(choice, game):
-    
+    """Apply the choice of the current event"""
     if game.current_event_key == "system_coffee_warning":
         option = next((o for o in COFFEE_WARNING_EVENT["options"] if o["id"] == choice), None)
-        effects = option["effect"]
+        if not option:
+            return game, None
 
-        skip_turns = effects.pop("skip_turns", 0)
-        game.current_day += skip_turns # add 2 days to current day for 2 skip turns 
+        effects = option["effect"]
+        skip_turns = effects.get("skip_turns", 0)
+        game.current_day += skip_turns # add 2 days to current day for 2 coffee skip turns 
 
         if choice == "risk_it":
             game.coffee = 0
@@ -154,16 +143,16 @@ def apply_current_event_choice(choice, game):
     event = next((e for e in city_events if e["id"] == game.current_event_key), None)
     if not event:
         return game, None
+
     if event.get("requires_input"):
         option = next((o for o in event.get("options", []) if o["id"] == choice), None)
         effects = option.get("effect", {})
     else:
         effects = event.get("effects", {})
-    apply_effects(game, effects)
 
+    apply_effects(game, effects)
     message = effects.get("message")
     game.current_event_key = None
-
     save_game(game)
     return game, message
     
