@@ -1,9 +1,13 @@
-{% extends "base.html" %} {% block content %} {% if action == "travel" %}
+{% extends "base.html" %} {% block content %}
+
+<!-- if action travel -->
+{% if action == "travel" %}
 <p>You arrived at {{ game.current_location.city_name }}</p>
 {% endif %} {% if event %}
 <p>{{ event.name }}</p>
 <p>{{ event.description }}</p>
 
+<!-- if event requires input -->
 {% if event.requires_input %}
 <form
   method="POST"
@@ -15,15 +19,10 @@
   </button>
   {% endfor %}
 </form>
+
+<!-- if event does not require input -->
 {% else %}
 <a href="{{ url_for('pages.show_game', game_id=game.id) }}">
   <button type="button">Enter to continue...</button>
 </a>
-{% endif %} {% else %} {% if message %}
-<p>{{ message }}</p>
-{% endif %}
-<a href="{{ url_for('pages.show_game', game_id=game.id) }}">
-  <button type="button">Enter to continue...</button>
-</a>
-
-{% endif %} {% endblock %}
+{% endif %} {% endif %} {% endblock %}

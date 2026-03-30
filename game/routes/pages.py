@@ -65,7 +65,7 @@ def handle_move(game_id):
     game = GameSession.query.get_or_404(game_id)
     
     if action == "quit":
-        reset_game(game)
+        save_game(game)
         return redirect(url_for("pages.home"))
 
     if action == "save":
@@ -98,14 +98,15 @@ def handle_move(game_id):
             action=action
         )
 
-    # message = ACTION_EFFECTS.get(action, {}).get("message")
-    # return render_template(
-    #     "pages/message.html",
-    #     game = game,
-    #     event = None,
-    #     message = message,
-    #     game_over = result.game_over
-    # )
+    # display message for other actions except travel
+    message = ACTION_EFFECTS.get(action, {}).get("message")
+    return render_template(
+        "pages/message.html",
+        game = game,
+        event = None,
+        message = message,
+        game_over = result.game_over
+    )
 
 
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])
@@ -114,7 +115,7 @@ def handle_event(game_id):
     game = GameSession.query.get_or_404(game_id)
     game, message = apply_current_event_choice(choice, game)
     return render_template(
-        "pages/event.html", 
+        "pages/game.html", 
         game=game, 
         message = message, 
         event=None
