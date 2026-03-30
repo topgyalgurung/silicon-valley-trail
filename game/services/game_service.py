@@ -3,7 +3,7 @@ import random
 from game.models import GameSession, Location
 from game.services.event_service import pick_event_by_location
 from game.services.weather_service import get_weather_by_city
-from game.utils import get_next_location, clamp_resource, evaluate_game_status, check_coffee_warning
+from game.utils import get_next_location, clamp_resource, evaluate_game_status, check_coffee_warning, calculate_progress
 from data.mock_api_data import EVENTS_BY_LOCATION, ACTION_EFFECTS, COFFEE_WARNING_EVENT, INITIAL_GAME_STATE
 from game.services.result_types import ActionResult
 from game.extensions import db
@@ -11,7 +11,12 @@ from game.extensions import db
 START_CITY = "San Jose" 
 # START_CITY_TEST = "Daly City" # test destination reached logic
 DESTINATION_CITY = "San Francisco"
-RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs", "progress")
+RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs")
+
+# development
+def clear_all_games():
+    GameSession.query.delete()
+    db.session.commit()
 
 def save_game(data):
     db.session.add(data)
@@ -61,15 +66,16 @@ def apply_action(action, game):
         game.current_event_key = COFFEE_WARNING_EVENT["id"]
         save_game(game)
         return ActionResult(
-            game = game, 
-            event = COFFEE_WARNING_EVENT,
-            status = game.status,
-            message = None,
-            game_over = False
+            game=game,
+            event=COFFEE_WARNING_EVENT,
+            status=game.status,
+            message=None,
+            game_over=False
         )
 
     apply_effects(game, effects)
-    game.current_day += 1 
+
+    game.current_day += 1
     _, status_message = evaluate_game_status(game)
 
     if game.status != "in_progress":
@@ -77,7 +83,7 @@ def apply_action(action, game):
             game=game,
             event=None,
             status=game.status,
-            message= status_message,
+            message=status_message,
             game_over=True
         )
 
@@ -91,12 +97,33 @@ def apply_action(action, game):
             status=game.status,
             game_over=False
         )
+
+    # travel logic
+    current_location = db.session.get(Location, game.current_location_id)
     next_location = get_next_location(game.current_location_id)
+
+    if not next_location:
+        game.status = "won"
+        save_game(game)
+        return ActionResult(
+            game=game,
+            event=None,
+            status=game.status,
+            progress=game.progress,
+            message="Congratulations, you reached San Francisco!",
+            game_over=True
+        )
+
+    segment_distance = current_location.distance_to_next_miles or 0.0
+    game.distance_traveled_miles += segment_distance
+    game.progress = calculate_progress(game.distance_traveled_miles)
+
     game.current_location_id = next_location.id
 
     event = handle_travel(game, next_location)
-    status, status_message = evaluate_game_status(game) 
+    status, status_message = evaluate_game_status(game)
     save_game(game)
+
     return ActionResult(
         game=game,
         event=event,
@@ -104,7 +131,7 @@ def apply_action(action, game):
         message=status_message,
         game_over=game.status != "in_progress"
     )
-    
+
 def handle_travel(game, next_location):
     weather_data = get_weather_by_city(next_location.city_name)
     weather_summary = weather_data["summary"]
@@ -144,7 +171,7 @@ def apply_current_event_choice(choice, game):
         option = next((o for o in event.get("options", []) if o["id"] == choice), None)
         effects = option.get("effect", {})
     else:
-        effects = event.get("effects", {})
+        effects = event.get("effect", {})
 
     apply_effects(game, effects)
     message = effects.get("message")

@@ -10,7 +10,7 @@ from game.services import (
 )
 from game.models import GameSession
 from data.mock_api_data import ACTION_EFFECTS
-from game.utils import get_game_weather
+from game.utils import get_game_weather, calculate_progress
 
 game_routes = Blueprint("pages", __name__, template_folder="templates")
 
@@ -48,6 +48,7 @@ def show_game(game_id):
     return render_template(
         "pages/game.html", 
         game=game, 
+        progress=game.progress,
         days_left=days_left,
         weather_data=weather_data,
         weather_warning=weather_warning,
@@ -73,7 +74,7 @@ def handle_move(game_id):
     except requests.exceptions.RequestException:
         return redirect(url_for("pages.show_game", game_id=game_id))
     except Exception:
-        current_app.logger.error("Error applying action: %s", action)
+        current_app.logger.exception("Error applying action: %s", action)
         abort(500, "Internal server error")
 
     if result.game_over:
@@ -100,8 +101,7 @@ def handle_move(game_id):
         "pages/message.html",
         game = game,
         event = None,
-        message = message,
-        game_over = result.game_over
+        message = message
     )
 
 
@@ -123,7 +123,8 @@ def handle_event(game_id):
         event=None,
         days_left=days_left,
         weather_data=weather_data,
-        weather_warning=weather_warning
+        weather_warning=weather_warning,
+        progress=game.progress
     )
 
 @game_routes.route("/quit")

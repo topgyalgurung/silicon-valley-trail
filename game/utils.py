@@ -8,12 +8,8 @@ def get_next_location(current_location_id):
     current_location = db.session.get(Location, current_location_id)
     if not current_location:
         return None
-    return (
-        Location.query
-        .filter(Location.order_index > current_location.order_index)
-        .order_by(Location.order_index)
-        .first()
-    )
+    next_order = current_location.order_index + 1
+    return Location.query.filter(Location.order_index == next_order).first()
 
 def clamp_resource(field, new_value):
     """keep resource within allowed limits before updating"""
@@ -40,7 +36,7 @@ def evaluate_game_status(game):
         return game.status, "You have not reached the destination in 20 days to pitch for your Series A funding. Game over. "
     if game.current_location_id == game.destination_location_id:
         game.status = "won"
-        return game.status, "You have reached the destination. Let's pitch for your Series A funding! Congratulations!"
+        return game.status, "Congratulations,You have reached San Francisco. Let's pitch for your Series A funding!"
     return game.status, None
 
 def check_coffee_warning(game, effects):
@@ -56,3 +52,16 @@ def get_game_weather(game):
     if not weather_data["ok"]:
         weather_warning = "live weather unavailable. Showing fallback data."
     return weather_data, weather_warning
+
+
+def get_total_distance_miles():
+    locations = Location.query.order_by(Location.order_index.asc()).all()
+    return sum(location.distance_to_next_miles or 0.0 for location in locations)
+
+def calculate_progress(distance_traveled_miles):
+    total_distance_miles = get_total_distance_miles()
+
+    if total_distance_miles == 0:
+        return 0.0
+    percentage = (distance_traveled_miles / total_distance_miles) * 100 
+    return round(min(100.0, percentage), 2)

@@ -11,7 +11,7 @@ class GameSession(db.Model):
     destination_location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)
     status = db.Column(db.String(20), nullable=False, default='in_progress') # in progress, won, lost
 
-    progress = db.Column(db.Integer, nullable=False, default=0) 
+    progress = db.Column(db.Integer, default=0) 
     distance_traveled_miles = db.Column(db.Float, nullable=False, default=0.0)
     current_event_key = db.Column(db.String(100), nullable=True) # presented/selected event 
 

@@ -10,8 +10,6 @@ INITIAL_GAME_STATE = {
     "current_event_key": None,
 }
 
-# data/events.py
-
 EVENTS_BY_LOCATION = {
     "Santa Clara": [
         {
@@ -37,10 +35,10 @@ EVENTS_BY_LOCATION = {
             "name": "Quick Bug Fix Sprint",
             "description": "A few focused hours could reduce bugs.",
             "requires_input": True,
-            "condition": {"bugs":{"min":4}},
+            "condition": {"bugs": {"min": 4}},
             "options": [
                 {"id": "fix", "text": "Fix bugs", "effect": {"bugs": -4, "coffee": -8}},
-                {"id": "ignore", "text": "Ignore for now", "effect": {"progress": 3, "bugs": 2}}
+                {"id": "ignore", "text": "Ignore for now", "effect": {"bugs": 2}}
             ]
         }
     ],
@@ -83,7 +81,7 @@ EVENTS_BY_LOCATION = {
             "description": "A local hackathon could move the product forward fast.",
             "requires_input": True,
             "options": [
-                {"id": "join", "text": "Join the hackathon", "effect": {"progress": 12, "coffee": -15, "bugs": 4, "hype": 6}},
+                {"id": "join", "text": "Join the hackathon", "effect": {"coffee": -15, "bugs": 4, "hype": 6}},
                 {"id": "skip", "text": "Skip it", "effect": {"morale": -2}}
             ]
         },
@@ -93,7 +91,7 @@ EVENTS_BY_LOCATION = {
             "description": "A quiet gray day helps the team focus.",
             "requires_input": False,
             "weather_conditions": ["Clouds"],
-            "effect": {"progress": 5, "morale": 2}
+            "effect": {"morale": 2}
         },
         {
             "id": "mv_demo_crash",
@@ -126,7 +124,7 @@ EVENTS_BY_LOCATION = {
             "weather_conditions": ["Clear", "Sunny"],
             "options": [
                 {"id": "join", "text": "Join the meetup", "effect": {"hype": 8, "morale": 5, "coffee": -5}},
-                {"id": "skip", "text": "Stay focused", "effect": {"progress": 4}}
+                {"id": "skip", "text": "Stay focused", "effect": {}}
             ]
         },
         {
@@ -135,7 +133,7 @@ EVENTS_BY_LOCATION = {
             "description": "Rainy roads delay the team and kill momentum.",
             "requires_input": False,
             "weather_conditions": ["Rain"],
-            "effect": {"coffee": -10, "morale": -8, "progress": -3}
+            "effect": {"coffee": -10, "morale": -8}
         }
     ],
 
@@ -156,8 +154,8 @@ EVENTS_BY_LOCATION = {
             "description": "A disagreement breaks out over product direction.",
             "requires_input": True,
             "options": [
-                {"id": "mediate", "text": "Pause and mediate", "effect": {"morale": 8, "progress": -2}},
-                {"id": "push", "text": "Push through it", "effect": {"progress": 5, "morale": -10}}
+                {"id": "mediate", "text": "Pause and mediate", "effect": {"morale": 8}},
+                {"id": "push", "text": "Push through it", "effect": {"morale": -10}}
             ]
         },
         {
@@ -176,10 +174,10 @@ EVENTS_BY_LOCATION = {
             "name": "Server Outage",
             "description": "A production issue spikes bugs.",
             "requires_input": True,
-            "condition": {"bugs":{"min":6}},
+            "condition": {"bugs": {"min": 6}},
             "options": [
                 {"id": "fix", "text": "Fix bugs", "effect": {"bugs": -6, "coffee": -12, "morale": -3}},
-                {"id": "delay_fix", "text": "Delay the fix", "effect": {"bugs": 8, "progress": 2}}
+                {"id": "delay_fix", "text": "Delay the fix", "effect": {"bugs": 8}}
             ]
         },
         {
@@ -198,7 +196,7 @@ EVENTS_BY_LOCATION = {
             "description": "Strong winds and chaos cost the team time and coffee.",
             "requires_input": False,
             "weather_conditions": ["Wind", "Windy"],
-            "effect": {"coffee": -8, "progress": -4}
+            "effect": {"coffee": -8}
         }
     ],
 
@@ -209,8 +207,8 @@ EVENTS_BY_LOCATION = {
             "description": "The team is exhausted and morale dips.",
             "requires_input": True,
             "options": [
-                {"id": "rest", "text": "Force a rest day", "effect": {"morale": 10, "progress": -3, "coffee": 5}},
-                {"id": "push", "text": "Push through", "effect": {"progress": 5, "morale": -12}}
+                {"id": "rest", "text": "Force a rest day", "effect": {"morale": 10, "coffee": 5}},
+                {"id": "push", "text": "Push through", "effect": {"morale": -12}}
             ]
         },
         {
@@ -229,7 +227,7 @@ EVENTS_BY_LOCATION = {
             "description": "A gloomy day keeps distractions low and focus high.",
             "requires_input": False,
             "weather_conditions": ["Clouds"],
-            "effect": {"progress": 4, "bugs": -2}
+            "effect": {"bugs": -2}
         }
     ],
 
@@ -241,7 +239,7 @@ EVENTS_BY_LOCATION = {
             "requires_input": True,
             "options": [
                 {"id": "chase", "text": "Chase the lead", "effect": {"money": 350, "hype": 6, "coffee": -6}},
-                {"id": "ignore", "text": "Ignore and focus", "effect": {"progress": 3}}
+                {"id": "ignore", "text": "Ignore and focus", "effect": {}}
             ]
         },
         {
@@ -271,8 +269,8 @@ EVENTS_BY_LOCATION = {
             "description": "The team can sprint toward launch, but it will hurt.",
             "requires_input": True,
             "options": [
-                {"id": "sprint", "text": "Sprint hard", "effect": {"progress": 10, "coffee": -12, "bugs": 5}},
-                {"id": "steady", "text": "Keep a steady pace", "effect": {"progress": 4, "morale": 2}}
+                {"id": "sprint", "text": "Sprint hard", "effect": {"coffee": -12, "bugs": 5}},
+                {"id": "steady", "text": "Keep a steady pace", "effect": {"morale": 2}}
             ]
         },
         {
@@ -282,7 +280,7 @@ EVENTS_BY_LOCATION = {
             "requires_input": True,
             "options": [
                 {"id": "respond", "text": "Respond quickly", "effect": {"hype": 10, "coffee": -4}},
-                {"id": "ignore", "text": "Ignore it", "effect": {"progress": 2}}
+                {"id": "ignore", "text": "Ignore it", "effect": {}}
             ]
         },
         {
@@ -291,7 +289,7 @@ EVENTS_BY_LOCATION = {
             "description": "Great weather helps the team move cleanly into the final stretch.",
             "requires_input": False,
             "weather_conditions": ["Clear", "Sunny"],
-            "effect": {"progress": 5, "morale": 3}
+            "effect": {"morale": 3}
         }
     ],
 
@@ -302,8 +300,8 @@ EVENTS_BY_LOCATION = {
             "description": "Pressure rises as the destination gets close.",
             "requires_input": True,
             "options": [
-                {"id": "pep_talk", "text": "Give a pep talk", "effect": {"morale": 8, "progress": -2}},
-                {"id": "push_forward", "text": "Push forward fast", "effect": {"progress": 5, "morale": -6}}
+                {"id": "pep_talk", "text": "Give a pep talk", "effect": {"morale": 8}},
+                {"id": "push_forward", "text": "Push forward fast", "effect": {"morale": -6}}
             ]
         },
         {
@@ -322,12 +320,20 @@ EVENTS_BY_LOCATION = {
             "description": "The famous fog makes the final approach feel much longer.",
             "requires_input": False,
             "weather_conditions": ["Fog", "Mist"],
-            "effect": {"progress": -4, "coffee": -6, "morale": -5}
+            "effect": {"coffee": -6, "morale": -5}
         }
     ],
+
     "San Francisco": [
         {
-        
+            "id": "sf_demo_room",
+            "name": "Demo Room Ready",
+            "description": "You finally have a chance to show what the team built.",
+            "requires_input": True,
+            "options": [
+                {"id": "demo", "text": "Demo the product", "effect": {"hype": 15, "money": 500}},
+                {"id": "hold", "text": "Hold for polish", "effect": {}}
+            ]
         }
     ]
 }
@@ -336,7 +342,6 @@ ACTION_EFFECTS = {
     "travel": {
         "cash": -300,
         "coffee": -8, # stretch: calculate coffee based on distance
-        "progress": 3,
     },
     "rest": {
         "morale": 10,
