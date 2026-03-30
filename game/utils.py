@@ -1,6 +1,7 @@
 from game.models import Location
 from data.mock_api_data import RESOURCE_LIMITS
 from game.extensions import db
+from game.services.weather_service import get_weather_by_city
 DESTINATION_CITY = "San Francisco"
 
 def get_next_location(current_location_id):
@@ -34,6 +35,9 @@ def evaluate_game_status(game):
     if game.cash <= 0:
         game.status = "lost"
         return game.status, "You have run out of cash. Game over. "
+    if game.current_day >= 20 and game.current_location_id != game.destination_location_id:
+        game.status = "lost"
+        return game.status, "You have not reached the destination in 20 days to pitch for your Series A funding. Game over. "
     if game.current_location_id == game.destination_location_id:
         game.status = "won"
         return game.status, "You have reached the destination. Let's pitch for your Series A funding! Congratulations!"
@@ -45,3 +49,10 @@ def check_coffee_warning(game, effects):
     if coffee_change >= 0:
         return False
     return game.coffee + coffee_change <=0
+
+def get_game_weather(game):
+    weather_data = get_weather_by_city(game.current_location.city_name)
+    weather_warning = None
+    if not weather_data["ok"]:
+        weather_warning = "live weather unavailable. Showing fallback data."
+    return weather_data, weather_warning

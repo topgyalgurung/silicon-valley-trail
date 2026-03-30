@@ -347,7 +347,7 @@ ACTION_EFFECTS = {
     "work": {
         "coffee": -10,
         "bugs": -5, # stretch: calculate bugs based on current bugs and work done
-        "morale": -3,
+        "morale": -6, 
         "message": "You worked on the product and reduced bugs.",
     },
     "marketing": {

@@ -10,6 +10,7 @@ from game.services import (
 )
 from game.models import GameSession
 from data.mock_api_data import ACTION_EFFECTS
+from game.utils import get_game_weather
 
 game_routes = Blueprint("pages", __name__, template_folder="templates")
 
@@ -41,14 +42,13 @@ def load_game():
 @game_routes.route("/game/<int:game_id>")
 def show_game(game_id):
     game = GameSession.query.get_or_404(game_id) # get latest game session from the database or create a new one if none exists
-    weather_data = get_weather_by_city(game.current_location.city_name)
+    weather_data, weather_warning = get_game_weather(game)
 
-    weather_warning = None
-    if not weather_data["ok"]:
-        weather_warning = "live weather unavailable. Showing fallback data."
+    days_left = max(0, 20 - game.current_day)
     return render_template(
         "pages/game.html", 
         game=game, 
+        days_left=days_left,
         weather_data=weather_data,
         weather_warning=weather_warning,
         game_id=game_id,
@@ -64,11 +64,7 @@ def handle_move(game_id):
     # Load the current game session from the database or return 404 if not found
     game = GameSession.query.get_or_404(game_id)
     
-    if action == "quit":
-        save_game(game)
-        return redirect(url_for("pages.home"))
-
-    if action == "save":
+    if action in {"quit", "save"}:
         save_game(game)
         return redirect(url_for("pages.home"))
     
@@ -112,13 +108,22 @@ def handle_move(game_id):
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])
 def handle_event(game_id):
     choice = request.form.get("choice")
+    if not choice:
+        abort(400, "Invalid choice")
+
     game = GameSession.query.get_or_404(game_id)
     game, message = apply_current_event_choice(choice, game)
+    save_game(game)
+    days_left = max(0, 20 - game.current_day)
+    weather_data, weather_warning = get_game_weather(game)
     return render_template(
         "pages/game.html", 
         game=game, 
         message = message, 
-        event=None
+        event=None,
+        days_left=days_left,
+        weather_data=weather_data,
+        weather_warning=weather_warning
     )
 
 @game_routes.route("/quit")

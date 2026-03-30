@@ -9,7 +9,7 @@ from game.services.result_types import ActionResult
 from game.extensions import db
 
 START_CITY = "San Jose" 
-START_CITY_TEST = "Daly City"
+# START_CITY_TEST = "Daly City" # test destination reached logic
 DESTINATION_CITY = "San Francisco"
 RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs", "progress")
 
@@ -18,7 +18,7 @@ def save_game(data):
     db.session.commit()
 
 def create_new_game():
-    start_location = Location.query.filter_by(city_name=START_CITY_TEST).first()
+    start_location = Location.query.filter_by(city_name=START_CITY).first()
     destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
 
     game = GameSession(
@@ -31,7 +31,7 @@ def create_new_game():
     return game
 
 def reset_game(game):
-    start_location = Location.query.filter_by(city_name=START_CITY_TEST).first()
+    start_location = Location.query.filter_by(city_name=START_CITY).first()
     destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
 
     if not start_location or not destination_location:
@@ -53,10 +53,6 @@ def apply_effects(game, effects):
         current_value = getattr(game, field)
         new_value =  current_value + effects[field]
         setattr(game, field, clamp_resource(field, new_value))
-    
-    if game.coffee == 0:
-        game.current_day += 2
-
 
 def apply_action(action, game):
     effects = ACTION_EFFECTS.get(action, {})
@@ -137,7 +133,6 @@ def apply_current_event_choice(choice, game):
             game.coffee = 0
 
         apply_effects(game, effects)
-        save_game(game)
         return game, option["text"]
 
     city_events = EVENTS_BY_LOCATION.get(game.current_location.city_name,[])
@@ -154,7 +149,6 @@ def apply_current_event_choice(choice, game):
     apply_effects(game, effects)
     message = effects.get("message")
     game.current_event_key = None
-    save_game(game)
     return game, message
     
 
