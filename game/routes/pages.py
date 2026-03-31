@@ -8,7 +8,8 @@ from game.models import GameSession
 from game.utils.utils import get_game_weather
 from game.utils.state import save_game, create_new_game, clear_all_games
 from data.mock_api_data import ACTION_EFFECTS
-game_routes = Blueprint("game", __name__, template_folder="templates", url_prefix="")
+
+game_routes = Blueprint("game", __name__, url_prefix="") # api/v1
 
 ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
 
@@ -26,6 +27,7 @@ def render_game_page(game):
         weather_warning=weather_warning,
         game_id=game.id,
     )
+
 
 @game_routes.route("/")
 def home():
@@ -112,3 +114,7 @@ def handle_event(game_id):
 @game_routes.route("/quit")
 def quit_game():
     return render_template("pages/message.html", message="Have a nice day!")
+
+@game_routes.route("/test-500")
+def test_500():
+    raise Exception("Test 500 error")

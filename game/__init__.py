@@ -5,7 +5,8 @@ from flask_cors import CORS
 
 from .extensions import db, migrate
 from .config import Config, config as config_map
-from . import routes
+from game.routes import game_routes
+from game.errors import errors_bp
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,8 @@ def create_app(config_name="default"):
     db.init_app(app) 
     migrate.init_app(app, db)
 
-    app.register_blueprint(routes.game_routes)
-    register_error_handlers(app)
+    app.register_blueprint(game_routes)
+    app.register_blueprint(errors_bp)
 
     if not app.config.get('TESTING'):
         with app.app_context(): 

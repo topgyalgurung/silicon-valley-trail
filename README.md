@@ -6,17 +6,18 @@ Silicon Valley Trail is a replayable, resource-management simulation game where 
 
 ---
 
-### Core Features 
+### Core Features
 
-### Tech Stack 
-- **Frontend**: 
+### Tech Stack
+
+- **Frontend**:
   - Jinja2
-- **Backend**: 
-  - Flask 
+- **Backend**:
+  - Flask
   - Database: SQLite + SQLAlchemy ORM
 - **External APIs**:
   - OpenWeather
-- **Testing**: 
+- **Testing**:
   - Pytest
 
 ## Documentation
@@ -24,6 +25,7 @@ Silicon Valley Trail is a replayable, resource-management simulation game where 
 - [Quick Start](#quick-start)
 - [API Key Setup](#api-key-setup)
 - [Architecture](#architecture)
+
 ---
 
 ### Quick Start
@@ -130,7 +132,7 @@ Use case :
 
 ## Architecture
 
-The application follows a modular Flask architecture with clear separation of concerns across routing, business logic, persistence, and external integrations.
+The application follows a modular Flask architecture with clear separation of concerns across routing, business logic, persistence, and external integrations with [Application Factories](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and [Flask Blueprints](https://flask.palletsprojects.com/en/stable/blueprints/) with the goal of making it more maintainable and organized. This will also help write tests easier and also test each component independently.
 
 #### Architecture Layers
 
@@ -148,15 +150,15 @@ silicon_valley_trail/
 │
 ├── run.py
 ├── config.py
-├── models.py 
+├── models.py
 ├── routes/
 │   ├── pages.py
 │
 ├── services/
 │   ├── game_engine.py
 │   ├── event_service.py
-│   ├── weather_service.py 
-    |-- save_service.py 
+│   ├── weather_service.py
+    |-- save_service.py
 │
 ├── data/
 │   ├── locations.py
@@ -184,6 +186,11 @@ requests           # External API calls
 pytest             # Testing framework
 pytest-mock        # Mocking support
 ```
+
+#### Flask App structure 
+
+Blueprints
+- 
 
 Install all dependencies
 
@@ -230,12 +237,13 @@ All AI-generated suggestions were carefully reviewed and validated against trust
 
 ## DESIGN NOTES
 
-### 1. Game Loop and Balance Approach 
+### 1. Game Loop and Balance Approach
 
 The core game loop is designed around daily turns. On each day, the player selects an action, which updates resources such as cash, morale, coffee, hype, and bugs. If the player chooses to travel, the game moves to the next location, applies weather effects, and triggers an event. After each turn, the system checks win/loss conditions.
 The balance is designed around tradeoffs:
-	•	short-term gains (e.g., hype, cash) often increase risk (e.g., bugs, morale loss)
-	•	recovery actions improve stability but slow momentum.
+
+- short-term gains (e.g., hype, cash) often increase risk (e.g., bugs, morale loss)
+- recovery actions improve stability but slow momentum.
 
 ### 2. Why OpenWeather API and how it affects gameplay
 
@@ -246,50 +254,69 @@ The goal was to include an external API that meaningfully impacts gameplay rathe
 The game integrates live weather data from a public API. Weather conditions at the player’s current location affect turn outcomes. For example, rain increases travel causing morale loss, hot temperatures increase coffee consumption. If the API is unavailable, the game falls back to mock weather data so gameplay remains functional (cache weather data was not implemented)
 
 1. Passive Effects (Consistent Impact)
-Each turn, the current weather applies small effects to the team’s resources. This creates a predictable baseline challenge that players must manage.
-2. Conditional Events 
-Some events are only triggered under specific weather conditions. Example a bad commute appears during rain. 
+   Each turn, the current weather applies small effects to the team’s resources. This creates a predictable baseline challenge that players must manage
+2. Conditional Events
+   Some events are only triggered under specific weather conditions. Example a bad commute appears during rain.
 
-Approach: To keep the system clean and maintainable, API data is normalized into a simple structure (e.g., weather_main, temperature) before being used in game logic. This avoids tight coupling to raw API responses and makes the system easier to test and extend.
+Approach:
 
----
-
+To keep the system clean and maintainable, API data is normalized into a simple structure (e.g., weather_main, temperature) before being used in game logic. This avoids tight coupling to raw API responses and makes the system easier to test and extend.
 
 ### 3. Data Modeling ( state, events, persistence)
+
 The game state is stored in a GameSession model, which tracks core resources (cash, morale, coffee, hype, bugs), current location, and game status.
 
 Locations are stored in a separate table and define the travel path from start to destination.
 Events are defined as structured data (Python dictionaries) grouped by location. Each event includes:
-	•	metadata (id, name, description)
-	•	optional conditions (e.g., bugs threshold, API conditions)
-	•	multiple choices with resource tradeoffs
+
+- metadata (id, name, description)
+- optional conditions (e.g., bugs threshold, API conditions)
+- multiple choices with resource tradeoffs
 
 This approach keeps the system flexible and easy to modify without requiring frequent database schema changes. Game state is persisted using a relational database (SQLite with SQLAlchemy), allowing sessions to be saved and resumed.
 
-### 4. Error handling (network failures, rate limit) 
+### 4. Error handling (network failures, rate limit)
 
 The game is designed to remain stable even if the API fails.
 
 If the weather API is unavailable:
-	•	the system falls back to default or mock data
-	•	weather-dependent events are skipped
-	•	normal gameplay continues without interruption
+- the system falls back to default or mock data
+- weather-dependent events are skipped
+- normal gameplay continues without interruption
 
 This ensures the game remains playable and avoids blocking core functionality due to external dependencies.
 
+Error Handling in Flask App 
 
-### 5. Tradeoffs and if I had more time 
+Debug Mode
+- enable debug mode Flask outputs a really nice debugger directly on your browser during development. First set your app environment
+```bash
+$ export FLASK_APP=game
+```
+- then enable debug mode  
+```bash
+$ export FLASK_DEBUG=1 
+```
+
+Custom error pages:
+To declare a custom error handler, the @errorhandler decorator is used
+
+
+### 5. Tradeoffs and if I had more time
 
 Tradeoffs
-	•	Using a single API kept the implementation simple and reliable within the time constraint
-	•	Events are stored as in-code data rather than fully normalized database tables to reduce complexity
-	•	Weather effects are intentionally lightweight to avoid overly punishing gameplay
 
-If I Had More Time
-	•	Add multiplayer mode and leaderboard
-	•	Integrate additional APIs (e.g., traffic data, startup/news sentiment)
-	•	Improve frontend using React and modern UI components
-	•	Implement caching for API responses (e.g., 30-minute weather cache)
-	•	Add rate limiting and API versioning
-	•	Improve session management (cookies, authentication)
-	•	Normalize events and resources into separate relational tables for scalability
+- Using a single API kept the implementation simple and reliable within the time constraint
+- Events are stored as in-code data rather than fully normalized database tables to reduce complexity
+- Weather effects are intentionally lightweight to avoid overly punishing gameplay
+
+**If I Had More Time:**
+
+- Add multiplayer mode and leaderboard
+- deployment to cloud, CI/CD deployment testing pipelines
+- Integrate additional APIs (e.g., traffic data, startup/news sentiment)
+- Improve styling and frontend using React and modern UI components
+- Implement caching for API responses (e.g., 30-minute weather cache)
+- Add rate limiting and API versioning
+- Improve session management (cookies, authentication)
+- Normalize events and resources into separate relational tables for scalability

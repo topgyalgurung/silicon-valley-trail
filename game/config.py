@@ -1,11 +1,13 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# so variables are already set when class is created 
+basedir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 
 class Config: 
     """Base configuration shared by all environments"""
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or 'sqlite:///game.db'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'game.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 
