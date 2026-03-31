@@ -26,5 +26,5 @@ def test_get_weather_by_city(mocker):
 
     assert result == {"ok": True, "summary": "Clear", "temperature": 30, "description": "clear sky", "error": None}
 
-    mock_get.assert_called_once_with("https://api.openweathermap.org/data/2.5/weather?q=San Jose&appid=test_key&units=imperial")
+    mock_get.assert_called_once_with("https://api.openweathermap.org/data/2.5/weather?q=San Jose&appid=test_key&units=imperial", timeout=10)
 

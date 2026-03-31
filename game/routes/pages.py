@@ -15,7 +15,7 @@ ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
 # todo: POST -> redirect -> GET pattern
 
 def render_game_page(game):
-    days_left = max(0, 20 - game.current_day)
+    days_left = max(0, 21 - game.current_day)
     weather_data, weather_warning = get_game_weather(game)
     return render_template(
         "pages/game.html", 

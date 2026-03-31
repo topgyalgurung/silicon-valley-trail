@@ -1,7 +1,6 @@
 import random
 
 from game.models import GameSession, Location
-from game.services.event_service import pick_event_by_location
 from game.services.weather_service import get_weather_by_city
 from game.utils.utils import get_next_location, clamp_resource, update_game_status, check_coffee_warning, calculate_progress
 from game.utils.state import save_game
@@ -12,7 +11,7 @@ from game.extensions import db
 RESOURCE_FIELDS = ("cash", "morale", "coffee", "hype", "bugs")
 
 def apply_effects(game, effects):
-    """Apply effects to game resources and update derived fields like progress"""
+    """Apply effects to game resources using clamp rules"""
     for field in RESOURCE_FIELDS:
         if field not in effects:
             continue
@@ -29,6 +28,81 @@ def apply_weather_effects(game):
     if effect:
         apply_effects(game, effect)
     return weather
+
+def build_api_context(city_name):
+    """
+    Normalize API data into a simple structure for event filtering.
+    Weather affects which events are eligible, not direct resource changes.
+    """
+    weather_data = get_weather_by_city(city_name)
+    return {
+        "api_ok": weather_data.get("ok", False),
+        "weather_main": weather_data.get("summary"),
+        "temperature": weather_data.get("temperature")
+    }
+
+def matches_rules(source, rules):
+    """Support simple condition rules like min, max, equals, and in."""
+    for field, checks in rules.items():
+        value = source.get(field)
+
+        if "min" in checks and (value is None or value < checks["min"]):
+            return False
+
+        if "max" in checks and (value is None or value > checks["max"]):
+            return False
+
+        if "equals" in checks and value != checks["equals"]:
+            return False
+
+        if "in" in checks and value not in checks["in"]:
+            return False
+
+    return True
+
+def event_matches_condition(event, game, api_context):
+    """
+    An event is valid only if both:
+    1. normal game-state conditions pass
+    2. optional API-based conditions pass
+    """
+    game_state = {
+        "cash": game.cash,
+        "morale": game.morale,
+        "coffee": game.coffee,
+        "hype": game.hype,
+        "bugs": game.bugs,
+        "progress": game.progress,
+        "current_day": game.current_day,
+    }
+
+    game_condition = event.get("condition", {})
+    api_condition = event.get("api_condition", {})
+
+    if game_condition and not matches_rules(game_state, game_condition):
+        return False
+
+    if api_condition and not matches_rules(api_context, api_condition):
+        return False
+
+    return True
+
+def pick_event_for_location(location_name, game, api_context):
+    """pick one valid event for the location"""
+    events = EVENTS_BY_LOCATION.get(location_name,[])
+    valid_events = [ event for event in events if event_matches_condition(event, game, api_context)]
+
+    if not valid_events:
+        return None
+    return random.choice(valid_events)
+
+def trigger_event_after_travel(game, next_location):
+    """Trigger one valide eevent after arriving at a new location """
+    api_context = build_api_context(next_location.city_name)
+    event = pick_event_for_location(next_location.city_name, game, api_context)
+
+    game.current_event_key = event["id"] if event else None
+    return event 
 
 def apply_action(action, game):
     effects = ACTION_EFFECTS.get(action, {})
@@ -95,7 +169,7 @@ def apply_action(action, game):
 
     game.current_location_id = next_location.id
 
-    event = handle_travel(game, next_location)
+    event = trigger_event_after_travel(game, next_location)
     status, status_message = update_game_status(game)
     save_game(game)
 
@@ -106,19 +180,6 @@ def apply_action(action, game):
         message=status_message,
         game_over=game.status != "in_progress"
     )
-
-def handle_travel(game, next_location):
-    weather_data = get_weather_by_city(next_location.city_name)
-    weather_summary = weather_data["summary"]
-
-    event = pick_event_by_location(next_location.city_name, weather_summary, game)
-    
-    if not event: 
-        events = EVENTS_BY_LOCATION.get(next_location.city_name,[])
-        event = random.choice(events) if events else None # todo: add a weighted random choice based on the event's probability
-
-    game.current_event_key = event["id"] if event else None
-    return event 
 
 def apply_current_event_choice(choice, game):
     """Apply the choice of the current event"""
@@ -144,12 +205,14 @@ def apply_current_event_choice(choice, game):
 
     if event.get("requires_input"):
         option = next((o for o in event.get("options", []) if o["id"] == choice), None)
+        if not option:
+            return game, None
         effects = option.get("effect", {})
+        message = option.get("text", None)
     else:
         effects = event.get("effect", {})
-
+        message = event.get("text", None)
     apply_effects(game, effects)
-    message = effects.get("message")
     game.current_event_key = None
     return game, message
     
