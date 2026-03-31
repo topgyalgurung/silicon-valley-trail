@@ -25,6 +25,7 @@ def get_weather_by_city(city_name):
         return {
             **DEFAULT_WEATHER_DATA, 
             "ok": True,
+            "summary": fallback_summary,
             "description": fallback_summary,
             "error": None
         }

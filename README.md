@@ -16,11 +16,17 @@ The game blends deterministic logic with randomness and real-time weather data t
     - [Quick Start](#quick-start)
     - [API Key Setup](#api-key-setup)
       - [Running with Mock Data (No API Key Needed)](#running-with-mock-data-no-api-key-needed)
-  - [Architecture](#architecture) - [Architecture Layers](#architecture-layers) - [Project Structure](#project-structure)
+  - [Architecture](#architecture)
+    - [Architecture Layers](#architecture-layers)
+    - [Project Structure](#project-structure)
     - [Dependencies](#dependencies)
       - [Tech Stack](#tech-stack)
       - [Dependencies](#dependencies-1)
     - [Running Tests](#running-tests)
+    - [Example Commands / Inputs](#example-commands--inputs)
+      - [Run the game locally](#run-the-game-locally)
+      - [Sample gameplay flow](#sample-gameplay-flow)
+      - [Example input sequence](#example-input-sequence)
       - [AI Usage](#ai-usage)
   - [DESIGN NOTES](#design-notes)
     - [1. Game Loop and Balance Approach](#1-game-loop-and-balance-approach)
@@ -247,6 +253,50 @@ Note:
 
 - Tests are isolated and do not depend on external APIs (mock data is used)
 - Ensure your virtual environment is activated before running test
+
+### Example Commands / Inputs
+
+Because this game uses a browser UI, the main player inputs are button clicks rather than typed commands. The example below shows both how to launch the app and what a typical gameplay sequence looks like.
+
+This sample uses mock weather data so it works without an API key. Exact events may vary because location events are semi-random.
+
+#### Run the game locally
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+flask --app game run --port 8000 --debug
+```
+
+Open `http://127.0.0.1:8000` in your browser.
+
+#### Sample gameplay flow
+
+1. Click `New Game`
+2. On Day 1 in `San Jose`, click `Travel to next location`
+3. The team moves to `Santa Clara`
+4. Travel consumes resources, weather effects are applied, and a location event appears
+5. If the event is `Discount Coffee Cart`, click `Buy extra coffee`
+6. Return to the main game screen and click `Work on product`
+7. This reduces `bugs`, consumes `coffee`, lowers `morale`, and advances the day
+8. On the next turn, click `Rest and recover`
+9. This restores `morale`, uses some `coffee`, and advances the day
+10. Click `Travel to next location` again to move to `Sunnyvale`
+11. A new event appears based on the location, current game state, and API/weather data
+12. Continue choosing between `Travel to next location`, `Rest and recover`, `Work on product`, and `Marketing push` until you either reach `San Francisco` or lose by running out of time or resources
+
+#### Example input sequence
+
+`New Game` -> `Travel to next location` -> `Buy extra coffee` -> `Work on product` -> `Rest and recover` -> `Travel to next location` -> `Pitch immediately` -> `Marketing push`
+
+This sequence demonstrates the core game loop:
+
+- choose one action per turn
+- spend or recover resources
+- move between real Silicon Valley locations
+- resolve a semi-random event after travel
+- make tradeoff decisions that affect future turns
 
 #### AI Usage
 

@@ -11,7 +11,7 @@ Each day (turn), your team travels, consumes resources, encounters events, and m
 - Travel between real-world locations in Silicon Valley
 - Manage limited resources while navigating unpredictable events
 - Make strategic decisions with tradeoffs and consequences
-- Reach your destination before your startup collapses
+- Reach your destination within 20 days to pitch Series A in San Francisco
 
 ---
 
