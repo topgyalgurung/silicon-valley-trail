@@ -12,18 +12,28 @@ DEFAULT_WEATHER_DATA = {
     "description": "clear sky",
     "error": "unavailable"
 }
-
 # TODO: cache weather data for few api calls, faster page loads 
 
 def get_weather_by_city(city_name):
     api_key = Config.OPENWEATHER_API_KEY
+    use_mock = Config.USE_MOCK_WEATHER
+
     normalized_city = city_name.strip().lower()
     fallback_summary = MOCK_WEATHER.get(normalized_city, "Clear")
+    
+    if use_mock:
+        return {
+            **DEFAULT_WEATHER_DATA, 
+            "ok": True,
+            "description": fallback_summary,
+            "error": None
+        }
 
     if not api_key:
         return {
             **DEFAULT_WEATHER_DATA, 
-            "summary": fallback_summary,  # overrides
+            "ok": True,
+            "description": fallback_summary,  # overrides
             "error": "missing_api_key" # overrides
         }
 

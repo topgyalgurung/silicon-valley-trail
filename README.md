@@ -320,3 +320,4 @@ Tradeoffs
 - Add rate limiting and API versioning
 - Improve session management (cookies, authentication)
 - Normalize events and resources into separate relational tables for scalability
+- API blueprint 

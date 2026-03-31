@@ -627,8 +627,8 @@ ACTION_EFFECTS = {
 }
 
 MOCK_WEATHER = {
-    "san jose": "Clear",
-    "santa clara": "Sunny",
+    "San Jose": "Clear",
+    "Santa Clara": "Sunny",
     "sunnyvale": "Clouds",
     "mountain view": "Rain",
     "palo alto": "Clear",
