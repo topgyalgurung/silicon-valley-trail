@@ -1,24 +1,12 @@
 # SILICON VALLEY TRAIL
 
-## Project Overview
+## Overview
 
-Silicon Valley Trail is a replayable, resource-management simulation game where you guide a scrappy startup team from San Jose to San Francisco. Each day (turn), your team travels, consumes resources, encounters events, and makes critical decisions that determine survival and success.
+Silicon Valley Trail is a replayable, Oregon Trail–inspired simulation game where you lead a startup team from San Jose to San Francisco. Each turn, you make strategic decisions to manage limited resources while navigating dynamic events and weather-driven challenges.
+
+The game blends deterministic logic with randomness and real-time (or mock) weather data to create a balanced and engaging experience. Built with a modular Flask architecture, the project focuses on clean design, scalability, and testability.
 
 ---
-
-### Core Features
-
-### Tech Stack
-
-- **Frontend**:
-  - Jinja2
-- **Backend**:
-  - Flask
-  - Database: SQLite + SQLAlchemy ORM
-- **External APIs**:
-  - OpenWeather
-- **Testing**:
-  - Pytest
 
 ## Documentation
 
@@ -33,58 +21,57 @@ Silicon Valley Trail is a replayable, resource-management simulation game where 
 1. Python
    Make sure Python 3.10+ is installed:
 
-```bash
-python --version
-```
+   ```bash
+   python --version
+   ```
 
-If not installed, download from [Python](https://www.python.org/downloads/)
+   If not installed, download from [Python](https://www.python.org/downloads/)
 
 2. Clone the repository
 
-```bash
-git clone repo-url
-cd path/to/silicon-valley-trail
-```
+   ```bash
+   git clone repo-url
+   cd path/to/silicon-valley-trail
+   ```
 
 3. Create and activate a virtual environment
 
-```bash
-python -m venv venv
-# mac
-source venv/bin/activate
-# windows
-venv\Scripts\activate
-```
+   ```bash
+   python -m venv venv
+   # mac
+   source venv/bin/activate
+   # windows
+   venv\Scripts\activate
+   ```
 
 4. Install dependencies
 
-```bash
-pip install -r requirements.txt
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 5. Set up environment variables
    create .env file in the project root:
 
-```env
-OPENWEATHER_API_KEY=your_api_key_here
-```
+   ```env
+   OPENWEATHER_API_KEY=your_api_key_here
+   ```
 
-Note:
-
-- The app uses SQLite (no installation required)
-- Database is automatically created and seeded on first run (enabled)
+   Note:
+   - The app uses SQLite (no installation required).
+   - To use a different database, add DATABASE_URL to your .env file
+   - Database is automatically created and seeded on first run
 
 6. Run the application
 
-```bash
-flask --app game run --port 8000 --debug
-```
+   ```bash
+   flask --app game run --port 8000 --debug
+   ```
 
 7. Open in browser
-
-```code
-http://127.0.0.1:8000
-```
+   ```code
+   http://127.0.0.1:8000
+   ```
 
 ### API Key Setup
 
@@ -132,87 +119,117 @@ Use case :
 
 ## Architecture
 
-The application follows a modular Flask architecture with clear separation of concerns across routing, business logic, persistence, and external integrations with [Application Factories](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and [Flask Blueprints](https://flask.palletsprojects.com/en/stable/blueprints/) with the goal of making it more maintainable and organized. This will also help write tests easier and also test each component independently.
+The application follows a modular Flask architecture with clear separation of concerns across routing, business logic, persistence, and external integrations. It uses [Application Factories](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and [Flask Blueprints](https://flask.palletsprojects.com/en/stable/blueprints/) to keep the codebase organized, maintainable, and easier to scale.
+
+This structure also improves testability by allowing components to be initialized, isolated, and tested independently.
 
 #### Architecture Layers
 
-- **Frontend (Jinja templates)**: Provides a minimal UI for the game flow, including menu, gameplay, and event screens.
-- **Routing Layer (Flask Blueprints)**: Handles HTTP requests, retrieves game state, and delegates logic to the service layer.
-- **Service Layer**: Contains core game logic such as action handling, travel progression, event triggering, and win/loss evaluation.
-- **Persistence Layer (SQLite + SQLAlchemy)**: Stores the current game session state, including resources, progress, and location.
-- **Static Data Layer**: Locations, events, and action effects are defined as Python data structures for fast iteration and easier balancing.
-- **External API Integration**: A weather service integrates with the OpenWeather API to influence gameplay (e.g., travel penalties, event conditions), with fallback mock data for reliability.
+#### Architecture Layers
+
+- **Frontend (Jinja)**: Renders game UI (menu, gameplay, events)
+- **Routing (Flask Blueprints)**: Handles requests and delegates to services
+- **Service Layer**: Core game logic (actions, progression, events, win/loss)
+- **Persistence (SQLite + SQLAlchemy)**: Stores game state and resources
+- **Static Data**: Defines locations, events, and action effects
+- **External API**: Weather integration (OpenWeather) with mock fallback for reliability
 
 #### Project Structure
 
 ```text
-silicon_valley_trail/
-│
-├── run.py
-├── config.py
-├── models.py
-├── routes/
-│   ├── pages.py
-│
-├── services/
-│   ├── game_engine.py
-│   ├── event_service.py
-│   ├── weather_service.py
-    |-- save_service.py
+silicon-valley-trail/
 │
 ├── data/
-│   ├── locations.py
-│   ├── mock_api_data.py
+│   ├── mock_api_data.py      # Mock weather, events, initial state
+│   └── seed_data.py          # Database seeding (locations)
 │
-├── tests/
-│   ├── test_game.py
+├── game/
+│   ├── __init__.py           # App factory
+│   │
+│   ├── errors/
+│   │   ├── __init__.py
+│   │   └── handlers.py       # Error handling (404, etc.)
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── models.py         # SQLAlchemy models (GameSession, Location)
+│   │
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   └── pages.py          # HTTP routes / controllers
+│   │
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── game_service.py   # Core game logic
+│   │   ├── event_service.py  # Event handling logic
+│   │   ├── weather_service.py# Weather API + mock fallback
+│   │   └── result_types.py   # Shared result/response structures
+│   │
+│   ├── templates/            # Jinja templates (UI)
+│   │
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── state.py          # Game state helpers
+│   │   └── utils.py          # Utility functions
 │
+├── tests/                    # Pytest test suite
+├── .env.example              # Example environment variables
 ├── requirements.txt
+├── run.py                    # Entry point
 └── README.md
 
 ```
 
 ### Dependencies
 
-Main dependencies used in the project
+#### Tech Stack
 
-```text
-Flask              # Web framework
-Flask-SQLAlchemy   # ORM
-Flask-Migrate      # Database migrations
-Flask-CORS         # Cross-origin support
-python-dotenv      # Environment variables
-requests           # External API calls
-pytest             # Testing framework
-pytest-mock        # Mocking support
-```
+- **Frontend**: Jinja2 (server-rendered UI)
+- **Backend**: Flask, SQLAlchemy
+- **Database**: SQLite (default), configurable via `DATABASE_URL`
+- **External API**: OpenWeather (weather-driven gameplay)
+- **Testing**: Pytest
 
-#### Flask App structure 
+#### Dependencies
 
-Blueprints
-- 
+- Flask — web framework
+- Flask-SQLAlchemy — ORM for database interactions
+- Flask-Migrate — database migrations
+- Flask-CORS — cross-origin support
+- python-dotenv — environment variable management
+- requests — HTTP client for external API calls
 
-Install all dependencies
+**Testing**
 
-```bash
-pip install -r requirements.txt
-```
+- pytest — testing framework
+- pytest-mock — mocking utilities
 
 ### Running Tests
 
-This project uses _pytest_
+This project uses **pytest** for unit testing.
 
 Run all tests
 
-```bash
+```pytest
 pytest
 ```
 
 Run specific test file
 
 ```bash
-pytest tests/test-events.py
+pytest tests/test_events.py
 ```
+
+Run with verbose output
+
+```bash
+pytest -v
+```
+
+Note:
+
+- Tests are isolated and do not depend on external APIs (mock data is used)
+- Ensure your virtual environment is activated before running test
 
 #### AI Usage
 
@@ -239,68 +256,123 @@ All AI-generated suggestions were carefully reviewed and validated against trust
 
 ### 1. Game Loop and Balance Approach
 
-The core game loop is designed around daily turns. On each day, the player selects an action, which updates resources such as cash, morale, coffee, hype, and bugs. If the player chooses to travel, the game moves to the next location, applies weather effects, and triggers an event. After each turn, the system checks win/loss conditions.
-The balance is designed around tradeoffs:
+**Game Loop**
 
-- short-term gains (e.g., hype, cash) often increase risk (e.g., bugs, morale loss)
-- recovery actions improve stability but slow momentum.
+- The game is played in daily turns, with a total limit of **20 days** to reach San Francisco
+- - The journey is structured across **12 real-world locations** (seeded into the database when game starts)
+- Each turn, the player chooses one action (e.g., travel, rest, work, marketing)
+- Actions update core resources:
+  - cash
+  - morale
+  - coffee
+  - hype
+  - bugs
+- If the player chooses **travel**:
+  - the team moves to the next location
+  - distance traveled (miles) is accumulated and used to calculate overall progress (%)
+  - weather effects are applied
+  - a location-based event may be triggered
+- After every turn, the system checks for **win/loss conditions**
+
+**Balance Approach**
+
+- Designed around meaningful tradeoffs:
+  - short-term gains (cash, hype) can increase risk (bugs, morale loss)
+  - recovery actions improve stability but slow overall progress
+- Resource management is critical:
+  - neglecting key resources can quickly lead to loss
+- The **20-day limit** creates time pressure:
+  - players must balance survival with forward momentum
+  - inefficient decisions can prevent reaching the destination in time.
 
 ### 2. Why OpenWeather API and how it affects gameplay
 
-I used the OpenWeather API because it is simple to integrate, reliable, and provides real-time weather data (e.g., weather conditions and temperature). It also has a generous free tier, which makes it suitable for rapid prototyping within a short timeframe.
+### API Choice and Gameplay Impact
 
-The goal was to include an external API that meaningfully impacts gameplay rather than just displaying information.
+I chose the **OpenWeather API** because it was simple to integrate, lightweight, and able to influence gameplay in a meaningful way. Rather than using an API only for display, I used weather data to affect player decisions and game state.
 
-The game integrates live weather data from a public API. Weather conditions at the player’s current location affect turn outcomes. For example, rain increases travel causing morale loss, hot temperatures increase coffee consumption. If the API is unavailable, the game falls back to mock weather data so gameplay remains functional (cache weather data was not implemented)
+**Why this API**
 
-1. Passive Effects (Consistent Impact)
-   Each turn, the current weather applies small effects to the team’s resources. This creates a predictable baseline challenge that players must manage
-2. Conditional Events
-   Some events are only triggered under specific weather conditions. Example a bad commute appears during rain.
+- Easy to integrate within a short project timeline
+- Adds real-world variability to the game
+- Fits naturally with location-based travel
 
-Approach:
+**Gameplay impact**
 
-To keep the system clean and maintainable, API data is normalized into a simple structure (e.g., weather_main, temperature) before being used in game logic. This avoids tight coupling to raw API responses and makes the system easier to test and extend.
+- Weather is fetched for the current location
+- Conditions such as **Rain**, **Fog**, or **Clear** influence game effects and make each turn less predictable
+- This adds variety and reinforces the travel/resource-management theme
+
+**Reliability**
+
+- Mock weather data is used as a fallback for testing and failure handling
+- This keeps gameplay working even without a live API response
 
 ### 3. Data Modeling ( state, events, persistence)
 
-The game state is stored in a GameSession model, which tracks core resources (cash, morale, coffee, hype, bugs), current location, and game status.
+### Data Modeling (State, Events, Persistence)
 
-Locations are stored in a separate table and define the travel path from start to destination.
-Events are defined as structured data (Python dictionaries) grouped by location. Each event includes:
+The data model was designed to keep the game state simple, explicit, and easy to update on each turn.
 
-- metadata (id, name, description)
-- optional conditions (e.g., bugs threshold, API conditions)
-- multiple choices with resource tradeoffs
+**State**
 
-This approach keeps the system flexible and easy to modify without requiring frequent database schema changes. Game state is persisted using a relational database (SQLite with SQLAlchemy), allowing sessions to be saved and resumed.
+- A `GameSession` represents the current run of the game
+- It stores the player’s evolving state, including:
+  - current location
+  - destination
+  - current day
+  - distance traveled in miles
+  - progress percentage
+  - resources such as cash, morale, coffee, hype, and bugs
+  - status fields used to determine win/loss outcomes
 
-### 4. Error handling (network failures, rate limit)
+**Events**
 
-The game is designed to remain stable even if the API fails.
+- Events are defined as structured Python mock data rather than database tables
+- Each location has its own set of event definitions, making it easier to customize gameplay by city
+- Events can apply direct effects or present player choices with different outcomes
+- Keeping events in data structures made iteration faster during balancing and development
 
-If the weather API is unavailable:
-- the system falls back to default or mock data
-- weather-dependent events are skipped
-- normal gameplay continues without interruption
+**Persistence**
 
-This ensures the game remains playable and avoids blocking core functionality due to external dependencies.
+- Game state is persisted in SQLite using SQLAlchemy ORM
+- The `Location` table stores the 12 seeded real-world locations used in the journey
+- The `GameSession` table stores the active game state so progress can be tracked across requests
+- This separation keeps static reference data (locations) distinct from dynamic gameplay state (session/resources/progress)
 
-Error Handling in Flask App 
+This design made it easier to reason about the system, test components independently, and update game state consistently after each turn.
 
-Debug Mode
-- enable debug mode Flask outputs a really nice debugger directly on your browser during development. First set your app environment
+### 4. Error Handling (Network Failures, Rate Limits)
+
+The weather service is designed to fail gracefully so the game remains playable even when the external API is unavailable.
+
+- Handles timeouts, network failures, and invalid API responses
+- Falls back to mock/default weather data if a request fails
+- Supports mock mode for testing and development without relying on live API calls
+- Prevents the weather API from becoming a single point of failure
+
+This keeps gameplay stable while still benefiting from external data when available.
+
+**Error Handling (Application Level)**
+
+In addition to handling external API failures, the application includes basic Flask-level error handling for development and user experience.
+
+**Debug Mode (Development)**
+
+- Debug mode is enabled during development to provide detailed error messages and an interactive debugger
+- This helps quickly identify issues during local development
+
 ```bash
-$ export FLASK_APP=game
-```
-- then enable debug mode  
-```bash
-$ export FLASK_DEBUG=1 
+export FLASK_APP=game
+export FLASK_DEBUG=1
 ```
 
-Custom error pages:
-To declare a custom error handler, the @errorhandler decorator is used
-
+**Custom Error Handlers**
+• Custom error handlers are implemented using Flask’s @errorhandler decorator
+• This allows the app to return user-friendly responses instead of default error pages
+• Example use cases:
+• handling 404 (page not found)
+• handling unexpected server errors (500)
 
 ### 5. Tradeoffs and if I had more time
 
@@ -310,14 +382,31 @@ Tradeoffs
 - Events are stored as in-code data rather than fully normalized database tables to reduce complexity
 - Weather effects are intentionally lightweight to avoid overly punishing gameplay
 
-**If I Had More Time:**
+#### If I Had More Time
 
-- Add multiplayer mode and leaderboard
-- deployment to cloud, CI/CD deployment testing pipelines
-- Integrate additional APIs (e.g., traffic data, startup/news sentiment)
-- Improve styling and frontend using React and modern UI components
-- Implement caching for API responses (e.g., 30-minute weather cache)
-- Add rate limiting and API versioning
-- Improve session management (cookies, authentication)
-- Normalize events and resources into separate relational tables for scalability
-- API blueprint 
+**Gameplay & Features**
+
+- Add multiplayer mode and a leaderboard system
+- Introduce additional APIs (e.g. traffic (Google Maps Routes API), startup/news sentiment) to enrich gameplay
+- Improve UI/UX with a modern frontend (e.g., React)
+
+**Infrastructure & Deployment**
+
+- Deploy to the cloud with CI/CD pipelines for automated testing and deployment
+- Improve session management (authentication, cookies, persistence)
+
+**Backend & System Design**
+
+- Normalize events and resources into relational tables for better scalability
+- Introduce API versioning and rate limiting
+- Expand API blueprint for clearer service boundaries
+
+**Reliability & Performance**
+
+- Implement caching for weather data (e.g., per-city cache with short TTL)
+- Add structured logging to capture failure reasons
+- Improve network resilience:
+  - explicit timeout handling
+  - fallback to mock data on failure or rate limits
+  - handle HTTP status codes such as `429` (rate limiting)
+  - optional retry logic for transient failures
