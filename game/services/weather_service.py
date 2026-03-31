@@ -35,6 +35,7 @@ def get_weather_by_city(city_name):
             **DEFAULT_WEATHER_DATA, 
             "ok": True,
             "description": fallback_summary,  # overrides
+            "summary": fallback_summary,
             "error": "missing_api_key" # overrides
         }
 
