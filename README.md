@@ -4,15 +4,34 @@
 
 Silicon Valley Trail is a replayable, Oregon Trail–inspired simulation game where you lead a startup team from San Jose to San Francisco. Each turn, you make strategic decisions to manage limited resources while navigating dynamic events and weather-driven challenges.
 
-The game blends deterministic logic with randomness and real-time (or mock) weather data to create a balanced and engaging experience. Built with a modular Flask architecture, the project focuses on clean design, scalability, and testability.
+The game blends deterministic logic with randomness and real-time weather data to create a balanced and engaging experience. Built with a modular Flask architecture, the project focuses on clean design, scalability, and testability.
 
 ---
 
 ## Documentation
 
-- [Quick Start](#quick-start)
-- [API Key Setup](#api-key-setup)
-- [Architecture](#architecture)
+- [SILICON VALLEY TRAIL](#silicon-valley-trail)
+  - [Overview](#overview)
+  - [Documentation](#documentation)
+    - [Quick Start](#quick-start)
+    - [API Key Setup](#api-key-setup)
+      - [Running with Mock Data (No API Key Needed)](#running-with-mock-data-no-api-key-needed)
+  - [Architecture](#architecture) - [Architecture Layers](#architecture-layers) - [Project Structure](#project-structure)
+    - [Dependencies](#dependencies)
+      - [Tech Stack](#tech-stack)
+      - [Dependencies](#dependencies-1)
+    - [Running Tests](#running-tests)
+      - [AI Usage](#ai-usage)
+  - [DESIGN NOTES](#design-notes)
+    - [1. Game Loop and Balance Approach](#1-game-loop-and-balance-approach)
+    - [2. Why OpenWeather API and how it affects gameplay](#2-why-openweather-api-and-how-it-affects-gameplay)
+    - [API Choice and Gameplay Impact](#api-choice-and-gameplay-impact)
+    - [3. Data Modeling ( state, events, persistence)](#3-data-modeling--state-events-persistence)
+    - [Data Modeling (State, Events, Persistence)](#data-modeling-state-events-persistence)
+    - [4. Error Handling (Network Failures, Rate Limits)](#4-error-handling-network-failures-rate-limits)
+    - [5. Tradeoffs and if I had more time](#5-tradeoffs-and-if-i-had-more-time)
+      - [Tradeoffs](#tradeoffs)
+      - [If I Had More Time](#if-i-had-more-time)
 
 ---
 
@@ -122,8 +141,6 @@ Use case :
 The application follows a modular Flask architecture with clear separation of concerns across routing, business logic, persistence, and external integrations. It uses [Application Factories](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and [Flask Blueprints](https://flask.palletsprojects.com/en/stable/blueprints/) to keep the codebase organized, maintainable, and easier to scale.
 
 This structure also improves testability by allowing components to be initialized, isolated, and tested independently.
-
-#### Architecture Layers
 
 #### Architecture Layers
 
@@ -314,6 +331,8 @@ I chose the **OpenWeather API** because it was simple to integrate, lightweight,
 
 The data model was designed to keep the game state simple, explicit, and easy to update on each turn.
 
+![Database Design](static/images/database-design.png)
+
 **State**
 
 - A `GameSession` represents the current run of the game
@@ -328,7 +347,8 @@ The data model was designed to keep the game state simple, explicit, and easy to
 
 **Events**
 
-- Events are defined as structured Python mock data rather than database tables
+- Events are defined as structured Python mock data rather
+  than database tables
 - Each location has its own set of event definitions, making it easier to customize gameplay by city
 - Events can apply direct effects or present player choices with different outcomes
 - Keeping events in data structures made iteration faster during balancing and development
@@ -376,7 +396,7 @@ export FLASK_DEBUG=1
 
 ### 5. Tradeoffs and if I had more time
 
-Tradeoffs
+#### Tradeoffs
 
 - Using a single API kept the implementation simple and reliable within the time constraint
 - Events are stored as in-code data rather than fully normalized database tables to reduce complexity
@@ -384,29 +404,20 @@ Tradeoffs
 
 #### If I Had More Time
 
-**Gameplay & Features**
+**Gameplay & UI**
 
-- Add multiplayer mode and a leaderboard system
-- Introduce additional APIs (e.g. traffic (Google Maps Routes API), startup/news sentiment) to enrich gameplay
-- Improve UI/UX with a modern frontend (e.g., React)
-
-**Infrastructure & Deployment**
-
-- Deploy to the cloud with CI/CD pipelines for automated testing and deployment
-- Improve session management (authentication, cookies, persistence)
+- Improve UI/UX with better styling and more polished interactions
+- Integrate additional APIs (e.g., Google Maps Routes API for travel and traffic data, Eventbrite/Meetup/Luma APIs for real-world events) to make gameplay more dynamic and location-aware
+- Expand test coverage for core game logic and edge cases
 
 **Backend & System Design**
 
-- Normalize events and resources into relational tables for better scalability
-- Introduce API versioning and rate limiting
-- Expand API blueprint for clearer service boundaries
+- Refactor data models (events/resources) into more structured schemas for easier scaling
+- Improve API structure for clearer separation of concerns
 
 **Reliability & Performance**
 
-- Implement caching for weather data (e.g., per-city cache with short TTL)
-- Add structured logging to capture failure reasons
-- Improve network resilience:
-  - explicit timeout handling
-  - fallback to mock data on failure or rate limits
-  - handle HTTP status codes such as `429` (rate limiting)
-  - optional retry logic for transient failures
+- Implement simple caching for weather data (per-city with short TTL)
+- Add structured logging for better debugging and monitoring
+- Improve network resilience with explicit timeout handling and graceful fallbacks
+- Implement integration testing to validate end to end testing

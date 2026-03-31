@@ -15,12 +15,13 @@ ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
 
 # todo: POST -> redirect -> GET pattern
 
-def render_game_page(game):
+def render_game_page(game, message=None):
     days_left = max(0, 21 - game.current_day)
     weather_data, weather_warning = get_game_weather(game)
     return render_template(
         "pages/game.html", 
         game=game, 
+        message=message,
         progress=game.progress,
         days_left=days_left,
         weather_data=weather_data,
@@ -93,12 +94,13 @@ def handle_move(game_id):
 
     # display message for other actions except travel
     message = ACTION_EFFECTS.get(action, {}).get("message")
-    return render_template(
-        "pages/message.html",
-        game = game,
-        event = None,
-        message = message
-    )
+    return render_game_page(game, message)
+    # return render_template(
+    #     "pages/game.html",
+    #     game = game,
+    #     event = None,
+    #     message = message
+    # )
 
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])
 def handle_event(game_id):
