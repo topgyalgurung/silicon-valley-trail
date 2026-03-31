@@ -3,20 +3,20 @@
 <h2>Day {{game.current_day}} | {{game.current_location.city_name }}</h2>
 <p>{{game.current_location.description}}</p>
 <ul>
-  <li>Cash: {{game.cash}}</li>
-  <li>Morale: {{game.morale}}</li>
-  <li>Coffee: {{game.coffee}}</li>
-  <li>Hype: {{game.hype}}</li>
-  <li>Bugs: {{game.bugs}}</li>
+  <li>💰 Cash: {{game.cash}}</li>
+  <li>😊 Morale: {{game.morale}}</li>
+  <li>☕ Coffee: {{game.coffee}}</li>
+  <li>📈 Hype: {{game.hype}}</li>
+  <li>🐛 Bugs: {{game.bugs}}</li>
   <li>
-    Progress: {{progress}} % to {{game.destination_location.city_name}}.
+    📍Progress: {{progress}} % to {{game.destination_location.city_name}}.
     {{days_left}} days left before the Pitch.
   </li>
 </ul>
 
 {% if weather_data %}
 <p>
-  Weather: {{ weather_data.description }}, {{ weather_data.temperature }} °F
+  🌤️ Weather: {{ weather_data.description }}, {{ weather_data.temperature }} °F
 </p>
 {% else %}
 <p>Weather: unavailable</p>
