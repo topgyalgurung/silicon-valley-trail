@@ -37,14 +37,3 @@ def create_app(config_name="default"):
             logger.info("Database seeded successfully")
 
     return app
-
-def register_error_handlers(app):
-    """register custom error handlers for the application"""
-    @app.errorhandler(404)
-    def not_found(error):
-        return {'error': 'Resource Not Found'}, 404
-
-    @app.errorhandler(500)
-    def server_error(error):
-        db.session.rollback()
-        return {'error': 'Internal Server Error'}, 500

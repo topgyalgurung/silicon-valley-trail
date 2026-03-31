@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app, flash
 from game.services import (
     apply_action, 
     apply_current_event_choice, 
@@ -45,12 +45,13 @@ def load_game():
     game = GameSession.query.order_by(GameSession.id.desc()).first()
     if not game:
         return redirect(url_for("game.home"))
-    return redirect(url_for("game.show_game", game_id= game.id))
+    return render_game_page(game,"✅ Game loaded successfully" )
 
 @game_routes.route("/game/<int:game_id>")
 def show_game(game_id):
     game = GameSession.query.get_or_404(game_id) # get latest game session from the database or create a new one if none exists
-    return render_game_page(game)
+    message = request.args.get("message")
+    return render_game_page(game, message)
 
 @game_routes.route("/game/<int:game_id>/move", methods=["POST"])
 def handle_move(game_id):
@@ -61,8 +62,12 @@ def handle_move(game_id):
 
     # Load the current game session from the database or return 404 if not found
     game = GameSession.query.get_or_404(game_id)
+
+    if action == "save":
+        save_game(game)
+        return render_game_page(game, "💾 Game saved successfully.")
     
-    if action in {"quit", "save"}:
+    if action == "quit":
         save_game(game)
         return redirect(url_for("game.home"))
     
