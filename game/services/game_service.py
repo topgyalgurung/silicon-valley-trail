@@ -122,7 +122,7 @@ def apply_action(action, game):
     apply_effects(game, effects)
 
     # real time weather effects apply
-    weather = apply_weather_effects(game)
+    _ = apply_weather_effects(game)
 
     game.current_day += 1
     _, status_message = update_game_status(game)

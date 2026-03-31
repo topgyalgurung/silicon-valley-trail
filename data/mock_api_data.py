@@ -224,14 +224,18 @@ EVENTS_BY_LOCATION = {
             "name": "Investor Buzz",
             "description": "Online chatter around your startup is trending upward.",
             "requires_input": True,
+            "condition":{
+                 "hype": {"min": 55},
+                "cash": {"min": 150}
+            },
             "api_condition": {
-                "sentiment_score": {"min": 70}
+                "weather_main": {"in": ["Clear", "Clouds", "Sunny"]}
             },
             "options": [
                 {
                     "id": "capitalize",
                     "text": "Lean into the momentum",
-                    "effect": {"hype": 10, "coffee": -4}
+                    "effect": {"hype": 10, "coffee": -4, "cash":-100}
                 },
                 {
                     "id": "stay_measured",
@@ -603,6 +607,7 @@ EVENTS_BY_LOCATION = {
 }
 
 ACTION_EFFECTS = {
+    
     "travel": {
         "cash": -300,
         "coffee": -8, # stretch: calculate coffee based on distance
