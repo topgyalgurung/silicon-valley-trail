@@ -1,9 +1,7 @@
-from random import sample
-from game.services.game_service import apply_effects
+from game.services.game_service import apply_effects, apply_current_event_choice
 from game.utils.utils import check_coffee_warning
-from game.services.game_service import apply_current_event_choice
 
-# sample game has cash=500, morale=80, coffee=50, hype=50, bugs=0, progress=0
+# sample game has cash=500, morale=80, coffee=50, hype=40, bugs=10, progress=0
 
 def test_apply_effects_multiple_fields(sample_game):
     effects = {"cash": -100, "morale": 10, "coffee": -20, "hype": 15, "bugs": -5}
@@ -22,7 +20,6 @@ def test_apply_effects_clamps_resources(sample_game):
     assert sample_game.hype == 100
     assert sample_game.bugs == 0
 
-
 def test_check_coffee_warning(sample_game):
     sample_game.coffee = 50
     effects = {"coffee": -10}
@@ -33,6 +30,124 @@ def test_check_coffee_warning_triggers(sample_game):
     effects = {"coffee": -10}
     assert check_coffee_warning(sample_game, effects) == True
 
+def test_apply_current_event_choice_system_warning_valid(sample_game, mocker):
+    sample_game.current_event_key = "system_coffee_warning"
+
+    mock_coffee_warning_event = {
+        "id": "system_coffee_warning",
+        "options": [
+            {
+                "id": "buy_coffee",
+                "text": "Buy coffee",
+                "effect": {"cash": -50, "coffee": 20}
+            },
+            {
+                "id": "risk_it",
+                "text": "Risk it",
+                "effect": {"skip_turns": 2, "morale": -10}
+            },
+        ],
+    }
+
+    mocker.patch(
+        "game.services.game_service.COFFEE_WARNING_EVENT",
+        mock_coffee_warning_event
+    )
+
+    game, message = apply_current_event_choice("buy_coffee", sample_game)
+
+    assert game.cash == 450
+    assert game.coffee == 70
+    assert game.current_day == 1
+    assert message == "Buy coffee"
 
 
+def test_apply_current_event_choice_system_warning_invalid(sample_game, mocker):
+    sample_game.current_event_key = "system_coffee_warning"
 
+    mock_coffee_warning_event = {
+        "id": "system_coffee_warning",
+        "options": [
+            {
+                "id": "buy_coffee",
+                "text": "Buy coffee",
+                "effect": {"cash": -50, "coffee": 20}
+            }
+        ],
+    }
+
+    mocker.patch(
+        "game.services.game_service.COFFEE_WARNING_EVENT",
+        mock_coffee_warning_event
+    )
+
+    game, message = apply_current_event_choice("invalid_choice", sample_game)
+
+    assert game == sample_game
+    assert game.cash == 500
+    assert game.coffee == 50
+    assert message is None
+
+
+def test_apply_current_event_choice_city_event_with_input(sample_game, mocker):
+    sample_game.current_event_key = "coffee_cart"
+
+    mock_events = {
+        "San Jose": [
+            {
+                "id": "coffee_cart",
+                "requires_input": True,
+                "options": [
+                    {
+                        "id": "buy",
+                        "text": "Buy coffee",
+                        "effect": {"cash": -50, "coffee": 20}
+                    },
+                    {
+                        "id": "skip",
+                        "text": "Skip it",
+                        "effect": {"morale": -5}
+                    },
+                ],
+            }
+        ]
+    }
+
+    mocker.patch(
+        "game.services.game_service.EVENTS_BY_LOCATION",
+        mock_events
+    )
+
+    game, message = apply_current_event_choice("buy", sample_game)
+
+    assert game.cash == 450
+    assert game.coffee == 70
+    assert game.current_event_key is None
+    assert message == "Buy coffee"
+
+
+def test_apply_current_event_choice_city_event_without_input(sample_game, mocker):
+    sample_game.current_event_key = "rain_commute"
+
+    mock_events = {
+        "San Jose": [
+            {
+                "id": "rain_commute",
+                "requires_input": False,
+                "effect": {"coffee": -10, "morale": -5},
+                "text": "Rain slows the team",
+            }
+        ]
+    }
+
+    mocker.patch(
+        "game.services.game_service.EVENTS_BY_LOCATION",
+        mock_events
+    )
+
+    game, message = apply_current_event_choice("anything", sample_game)
+
+    assert game.coffee == 40
+    assert game.morale == 75
+    assert game.current_event_key is None
+    assert message == "Rain slows the team"
