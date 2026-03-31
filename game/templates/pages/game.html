@@ -35,7 +35,7 @@
 <!-- game over -->
 {% if game_over %}
 <p>{{ message }}</p>
-<a href="{{ url_for('pages.home') }}">
+<a href="{{ url_for('game.home') }}">
   <button type="button">Return to menu</button>
 </a>
 {% else %}
@@ -44,21 +44,14 @@
 
 <p>What will you do?</p>
 
-<form
-  method="POST"
-  action="{{ url_for('pages.handle_move', game_id=game.id) }}"
->
-  <button name="action" value="travel">1. Travel to next location</button
-  ><br /><br />
+<form method="POST" action="{{ url_for('game.handle_move', game_id=game.id) }}">
+  <button name="action" value="travel">1. Travel to next location</button><br /><br />
   <button name="action" value="rest">
-    2. Rest and recover (restore morale, use coffee)</button
-  ><br /><br />
+    2. Rest and recover (restore morale, use coffee)</button><br /><br />
   <button name="action" value="work">
-    3. Work on product (reduce bugs, use coffee)</button
-  ><br /><br />
+    3. Work on product (reduce bugs, use coffee)</button><br /><br />
   <button name="action" value="marketing">
-    4. Marketing push (increase hype, costs money)</button
-  ><br /><br />
+    4. Marketing push (increase hype, costs money)</button><br /><br />
   <button name="action" value="save">5. Save game</button><br /><br />
   <button name="action" value="quit">6. Quit to menu</button>
 </form>

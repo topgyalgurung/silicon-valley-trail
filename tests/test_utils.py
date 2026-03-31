@@ -1,4 +1,4 @@
-from game.utils import clamp_resource
+from game.utils.utils import clamp_resource
 
 def test_clamp_resource():
     assert clamp_resource("cash", 1000) == 1000

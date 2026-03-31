@@ -19,7 +19,6 @@
 <p>Press Enter to begin your journey...</p>
 
 {% if game_id %}
-<a href="{{ url_for('pages.show_game', game_id=game_id) }}">
-  <button>Start Journey</button></a
->
+<a href="{{ url_for('game.show_game', game_id=game_id) }}">
+  <button>Start Journey</button></a>
 {% endif %} {% endblock %}

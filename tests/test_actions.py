@@ -1,6 +1,6 @@
 from random import sample
 from game.services.game_service import apply_effects
-from game.utils import check_coffee_warning
+from game.utils.utils import check_coffee_warning
 from game.services.game_service import apply_current_event_choice
 
 # sample game has cash=500, morale=80, coffee=50, hype=50, bugs=0, progress=0

@@ -1,8 +1,8 @@
-from game.models import Location
+from game.models import Location, GameSession
 from data.mock_api_data import RESOURCE_LIMITS
 from game.extensions import db
 from game.services.weather_service import get_weather_by_city
-DESTINATION_CITY = "San Francisco"
+from data.mock_api_data import ACTION_EFFECTS
 
 def get_next_location(current_location_id):
     current_location = db.session.get(Location, current_location_id)
@@ -23,7 +23,7 @@ def clamp_resource(field, new_value):
         value = min(max_value, value)
     return value
 
-def evaluate_game_status(game):
+def update_game_status(game):
     """ check win loss conditions and update game.status """
     if game.morale <= 0:
         game.status = "lost"
@@ -64,4 +64,4 @@ def calculate_progress(distance_traveled_miles):
     if total_distance_miles == 0:
         return 0.0
     percentage = (distance_traveled_miles / total_distance_miles) * 100 
-    return round(min(100.0, percentage), 2)
+    return int(min(100.0, percentage))

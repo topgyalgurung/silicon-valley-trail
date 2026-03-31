@@ -54,7 +54,6 @@ class Location(db.Model):
     # latitude = db.Column(db.Float)
     # longitude = db.Column(db.Float)
 
-    # distance from this city to next city 
     distance_to_next_miles = db.Column(db.Float, nullable=True)
 
     game_sessions = db.relationship(

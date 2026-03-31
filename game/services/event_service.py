@@ -12,7 +12,7 @@ def event_is_allowed(game, event):
 
 def pick_event_by_location(city, weather, game):
     """
-    Get a random event for a given location. Filter events by weather conditions if applicable.
+    Get a random event for a given location. 
     """
     city_events = EVENTS_BY_LOCATION.get(city,[])
     if not city_events:

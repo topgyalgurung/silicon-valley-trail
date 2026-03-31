@@ -6,11 +6,25 @@ Silicon Valley Trail is a replayable, resource-management simulation game where 
 
 ---
 
+### Core Features 
+
+### Tech Stack 
+- **Frontend**: 
+  - Jinja2
+- **Backend**: 
+  - Flask 
+  - Database: SQLite + SQLAlchemy ORM
+- **External APIs**:
+  - OpenWeather
+- **Testing**: 
+  - Pytest
+
 ## Documentation
 
 - [Quick Start](#quick-start)
-- [Tech Stack](#tech-stack)
--
+- [API Key Setup](#api-key-setup)
+- [Architecture](#architecture)
+---
 
 ### Quick Start
 
@@ -130,6 +144,29 @@ The application follows a modular Flask architecture with clear separation of co
 #### Project Structure
 
 ```text
+silicon_valley_trail/
+│
+├── run.py
+├── config.py
+├── models.py 
+├── routes/
+│   ├── pages.py
+│
+├── services/
+│   ├── game_engine.py
+│   ├── event_service.py
+│   ├── weather_service.py 
+    |-- save_service.py 
+│
+├── data/
+│   ├── locations.py
+│   ├── mock_api_data.py
+│
+├── tests/
+│   ├── test_game.py
+│
+├── requirements.txt
+└── README.md
 
 ```
 
@@ -172,8 +209,6 @@ pytest tests/test-events.py
 
 #### AI Usage
 
-#### AI Usage
-
 **During Development**
 
 AI tools were used to support the development process in the following ways:
@@ -190,3 +225,32 @@ All AI-generated suggestions were carefully reviewed and validated against trust
 
 - No AI is directly integrated into the gameplay.
 - All game logic, events, and outcomes are deterministic or rule-based.
+
+---
+
+## DESIGN NOTES
+
+### 1. Game Loop and Balance Approach 
+
+Core gameloop is designed around daily turns. On each day player selects an action, the game updates resources, and then checks for travel progress, event triggers, weather effects and win/loss conditions.
+
+
+### 2. Why OpenWeather API and how it affects gameplay
+
+The game integrates live weather data from a public API. Weather conditions at the player’s current location affect turn outcomes. For example, rain increases travel fatigue, hot temperatures increase coffee consumption, and adverse conditions can reduce progress. If the API is unavailable, the game falls back to cached or mock weather data so gameplay remains functional.
+
+### 3. Data Modeling ( state, events, persistence)
+
+
+### 4. Error handling (network failures, rate limit) 
+
+
+### 5. Tradeoffs and if I had more time 
+
+- multiplayer mode and leaderboard 
+- more APIs (google maps routes traffic api)
+- frontend upgrade (React, styling)
+- rate limiting, api versioning 
+- session, cookies 
+- cache weather for 30mins to use it 
+- did not fully normalize events and resources into separate relational tables in the initial version to remove schema complexity

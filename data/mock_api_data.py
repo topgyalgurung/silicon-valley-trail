@@ -326,14 +326,7 @@ EVENTS_BY_LOCATION = {
 
     "San Francisco": [
         {
-            "id": "sf_demo_room",
-            "name": "Demo Room Ready",
-            "description": "You finally have a chance to show what the team built.",
-            "requires_input": True,
-            "options": [
-                {"id": "demo", "text": "Demo the product", "effect": {"hype": 15, "money": 500}},
-                {"id": "hold", "text": "Hold for polish", "effect": {}}
-            ]
+        
         }
     ]
 }
@@ -363,18 +356,18 @@ ACTION_EFFECTS = {
 }
 
 MOCK_WEATHER = {
-    "San Jose": "Clear",
-    "Santa Clara": "Sunny",
-    "Sunnyvale": "Clouds",
-    "Mountain View": "Rain",
-    "Palo Alto": "Clear",
-    "Menlo Park": "Clouds",
-    "Redwood City": "Windy",
-    "San Mateo": "Clouds",
-    "Burlingame": "Clear",
-    "San Bruno": "Fog",
-    "Daly City": "Fog",
-    "San Francisco": "Fog"
+    "san jose": "Clear",
+    "santa clara": "Sunny",
+    "sunnyvale": "Clouds",
+    "mountain view": "Rain",
+    "palo alto": "Clear",
+    "menlo park": "Clouds",
+    "redwood city": "Windy",
+    "san mateo": "Clouds",
+    "burlingame": "Clear",
+    "san bruno": "Fog",
+    "daly city": "Fog",
+    "san francisco": "Fog",
 }
 
 WEATHER_EFFECTS = {
