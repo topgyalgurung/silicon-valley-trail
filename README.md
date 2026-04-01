@@ -6,33 +6,36 @@ Silicon Valley Trail is a replayable, Oregon Trail–inspired simulation game wh
 
 The game blends deterministic logic with randomness and real-time weather data to create a balanced and engaging experience. Built with a modular Flask architecture, the project focuses on clean design, scalability, and testability.
 
+## Project Links
+
+- **Live Demo:** [Open app](<[https://...](https://silicon-valley-trail.onrender.com/)>)
+- **Demo Video:** [Watch here](<[https://...](https://drive.google.com/file/d/1e_DFbQ7lJ1KUc2DEPLHkedoMEOTIUcFM/view?usp=sharing)>)
+
 ## Table of Contents
 
-- [Quick Start](#quick-start)
-- [API Key Setup](#api-key-setup)
-  - [Running with Mock Data (No API Key Needed)](#running-with-mock-data-no-api-key-needed)
-- [Architecture](#architecture)
-  - [Architecture Layers](#architecture-layers)
-  - [Project Structure](#project-structure)
-  - [Dependencies](#dependencies)
-    - [Tech Stack](#tech-stack)
-    - [Dependencies](#dependencies-1)
-  - [Running Tests](#running-tests)
-  - [Example Commands / Inputs](#example-commands--inputs)
-    - [Run the game locally](#run-the-game-locally)
-    - [Sample gameplay flow](#sample-gameplay-flow)
-    - [Example input sequence](#example-input-sequence)
-    - [AI Usage](#ai-usage)
-- [DESIGN NOTES](#design-notes)
-  - [1. Game Loop and Balance Approach](#1-game-loop-and-balance-approach)
-  - [2. Why OpenWeather API and how it affects gameplay](#2-why-openweather-api-and-how-it-affects-gameplay)
-  - [API Choice and Gameplay Impact](#api-choice-and-gameplay-impact)
-  - [3. Data Modeling ( state, events, persistence)](#3-data-modeling--state-events-persistence)
-  - [Data Modeling (State, Events, Persistence)](#data-modeling-state-events-persistence)
-  - [4. Error Handling (Network Failures, Rate Limits)](#4-error-handling-network-failures-rate-limits)
-  - [5. Tradeoffs and if I had more time](#5-tradeoffs-and-if-i-had-more-time)
-    - [Tradeoffs](#tradeoffs)
-    - [If I Had More Time](#if-i-had-more-time)
+1. [Quick Start](#quick-start)
+2. [API Key Setup](#api-key-setup)
+   - [Running with Mock Data (No API Key Needed)](#running-with-mock-data-no-api-key-needed)
+3. [Architecture](#architecture)
+   - [Architecture Layers](#architecture-layers)
+   - [Project Structure](#project-structure)
+   - [Dependencies](#dependencies)
+   - [Tech Stack](#tech-stack)
+4. [Running Tests](#running-tests)
+5. [Example Commands / Inputs](#example-commands--inputs)
+   - [Run the game locally](#run-the-game-locally)
+   - [Sample gameplay flow](#sample-gameplay-flow)
+   - [Example input sequence](#example-input-sequence)
+6. [AI Usage](#ai-usage)
+7. [Design Notes](#design-notes)
+   - [Game Loop and Balance Approach](#1-game-loop-and-balance-approach)
+   - [Why OpenWeather API and How It Affects Gameplay](#2-why-openweather-api-and-how-it-affects-gameplay)
+   - [API Choice and Gameplay Impact](#api-choice-and-gameplay-impact)
+   - [Data Modeling (State, Events, Persistence)](#3-data-modeling-state-events-persistence)
+   - [Error Handling (Network Failures, Rate Limits)](#4-error-handling-network-failures-rate-limits)
+   - [Tradeoffs and If I Had More Time](#5-tradeoffs-and-if-i-had-more-time)
+     - [Tradeoffs](#tradeoffs)
+     - [If I Had More Time](#if-i-had-more-time)
 
 ### Quick Start
 
@@ -48,7 +51,7 @@ The game blends deterministic logic with randomness and real-time weather data t
 2. Clone the repository
 
    ```bash
-   git clone repo-url
+   git clone <repo-url>
    cd path/to/silicon-valley-trail
    ```
 
@@ -69,7 +72,7 @@ The game blends deterministic logic with randomness and real-time weather data t
    ```
 
 5. Set up environment variables
-   create .env file in the project root:
+   create `.env` file in the project root:
 
    ```env
    OPENWEATHER_API_KEY=your_api_key_here
@@ -129,7 +132,7 @@ Modify config:
 USE_MOCK_WEATHER = True
 ```
 
-Use case :
+Benefits:
 
 - uses static weather data
 - Avoids API rate limits
@@ -310,67 +313,49 @@ All AI-generated suggestions were carefully reviewed and validated against trust
 - No AI is directly integrated into the gameplay.
 - All game logic, events, and outcomes are deterministic or rule-based.
 
----
-
 ## DESIGN NOTES
 
 ### 1. Game Loop and Balance Approach
 
 **Game Loop**
 
-- The game is played in daily turns, with a total limit of **20 days** to reach San Francisco
-- - The journey is structured across **12 real-world locations** (seeded into the database when game starts)
-- Each turn, the player chooses one action (e.g., travel, rest, work, marketing)
-- Actions update core resources:
-  - cash
-  - morale
-  - coffee
-  - hype
-  - bugs
-- If the player chooses **travel**:
-  - the team moves to the next location
-  - distance traveled (miles) is accumulated and used to calculate overall progress (%)
-  - weather effects are applied
-  - a location-based event may be triggered
-- After every turn, the system checks for **win/loss conditions**
+- The game is played in daily turns, with a total limit of 20 days to reach San Francisco
+- The journey is structured across 12 real-world locations seeded into the database
+- Each turn, the player chooses one action such as travel, rest, work, or marketing
+- Actions update core resources: cash, morale, coffee, hype, and bugs
+- Choosing `travel` moves the player to the next location, updates progress, applies weather-related logic, and may trigger a location-based event
+- After every turn, the system re-evaluates win and loss conditions
 
 **Balance Approach**
 
-- Designed around meaningful tradeoffs:
-  - short-term gains (cash, hype) can increase risk (bugs, morale loss)
-  - recovery actions improve stability but slow overall progress
-- Resource management is critical:
-  - neglecting key resources can quickly lead to loss
-- The **20-day limit** creates time pressure:
-  - players must balance survival with forward momentum
-  - inefficient decisions can prevent reaching the destination in time.
+- The game is designed around tradeoffs rather than optimal single-step choices
+- Short-term gains, such as earning cash or increasing hype, can also increase risk through bugs, morale loss, or resource drain
+- Recovery actions improve stability but cost time and slow progress
+- The 20-day limit adds pressure and forces the player to balance momentum with survival
+- This creates a simple but meaningful decision loop where poor resource management or delayed progress can lead to failure
 
-### 2. Why OpenWeather API and how it affects gameplay
+### 2. Why OpenWeather API and How It Affects Gameplay
 
-### API Choice and Gameplay Impact
-
-I chose the **OpenWeather API** because it was simple to integrate, lightweight, and able to influence gameplay in a meaningful way. Rather than using an API only for display, I used weather data to affect player decisions and game state.
+I chose the OpenWeather API because it was lightweight to integrate, practical within the project timeline, and able to influence gameplay in a meaningful way. Instead of using external data only for display, I used weather conditions as an input into backend game logic
 
 **Why this API**
 
-- Easy to integrate within a short project timeline
-- Adds real-world variability to the game
-- Fits naturally with location-based travel
+- It was simple to integrate within a short development timeline
+- It adds real-world variability to the game
+- It fits naturally with the project’s location-based travel structure
 
-**Gameplay impact**
+**Gameplay Impact**
 
-- Weather is fetched for the current location
-- Conditions such as **Rain**, **Fog**, or **Clear** influence game effects and make each turn less predictable
-- This adds variety and reinforces the travel/resource-management theme
+- Weather is fetched for the player’s current location
+- Conditions such as `Rain`, `Fog`, or `Clear` can influence gameplay effects and event eligibility
+- This makes each run feel less predictable while still keeping the game rule-based and testable
 
 **Reliability**
 
-- Mock weather data is used as a fallback for testing and failure handling
-- This keeps gameplay working even without a live API response
+- The application includes fallback and mock weather data so gameplay remains functional if the live API is unavailable
+- This prevents the weather integration from becoming a single point of failure
 
-### 3. Data Modeling ( state, events, persistence)
-
-### Data Modeling (State, Events, Persistence)
+### 3. Data Modeling (State, Events, Persistence)
 
 The data model was designed to keep the game state simple, explicit, and easy to update on each turn.
 
@@ -378,15 +363,9 @@ The data model was designed to keep the game state simple, explicit, and easy to
 
 **State**
 
-- A `GameSession` represents the current run of the game
-- It stores the player’s evolving state, including:
-  - current location
-  - destination
-  - current day
-  - distance traveled in miles
-  - progress percentage
-  - resources such as cash, morale, coffee, hype, and bugs
-  - status fields used to determine win/loss outcomes
+- A `GameSession` represents a single run of the game
+- It stores the player’s evolving state, including the current location, destination, current day, distance traveled, progress, and core resources such as cash, morale, coffee, hype, and bugs
+- It also stores status fields used to determine whether the player is still in progress, has won, or has lost
 
 **Events**
 
@@ -407,60 +386,50 @@ This design made it easier to reason about the system, test components independe
 
 ### 4. Error Handling (Network Failures, Rate Limits)
 
-The weather service is designed to fail gracefully so the game remains playable even when the external API is unavailable.
+The application is designed to fail gracefully so the game remains playable even when external services are unavailable.
 
-- Handles timeouts, network failures, and invalid API responses
-- Falls back to mock/default weather data if a request fails
-- Supports mock mode for testing and development without relying on live API calls
-- Prevents the weather API from becoming a single point of failure
+**Weather / External API Handling**
 
-This keeps gameplay stable while still benefiting from external data when available.
+- The weather service handles timeouts, network failures, and unexpected API responses
+- If a live weather request fails, the application falls back to mock or default weather data
+- This prevents the weather API from becoming a single point of failure during gameplay
+- Mock mode is also supported for local development and testing
 
-**Error Handling (Application Level)**
+**Application-Level Error Handling**
 
-In addition to handling external API failures, the application includes basic Flask-level error handling for development and user experience.
+- Flask error handlers are used to return user-friendly responses for common failures such as `404` and `500`
+- Routes validate player input, such as invalid actions or missing event choices, and return appropriate error responses
+- This helps protect the application from invalid requests while keeping behavior predictable
 
-**Debug Mode (Development)**
+**Development Support**
 
-- Debug mode is enabled during development to provide detailed error messages and an interactive debugger
-- This helps quickly identify issues during local development
-
-```bash
-export FLASK_APP=game
-export FLASK_DEBUG=1
-```
-
-**Custom Error Handlers**
-• Custom error handlers are implemented using Flask’s @errorhandler decorator
-• This allows the app to return user-friendly responses instead of default error pages
-• Example use cases:
-• handling 404 (page not found)
-• handling unexpected server errors (500)
+- Debug mode is enabled during development to make local troubleshooting easier
+- In production, this would be disabled in favor of safer runtime configuration
 
 ### 5. Tradeoffs and if I had more time
 
 #### Tradeoffs
 
-- Using a single API kept the implementation simple and reliable within the time constraint
-- Events are stored as in-code data rather than fully normalized database tables to reduce complexity
-- Weather effects are intentionally lightweight to avoid overly punishing gameplay
+- I limited the project to a single external API so I could keep integration complexity manageable and ensure the core backend logic remained reliable.
+- I stored events as structured Python data rather than normalized database tables to prioritize development speed and simpler iteration during balancing.
+- I kept weather effects intentionally lightweight so external data could influence gameplay without dominating the main turn-based decision logic.
 
 #### If I Had More Time
 
 **Gameplay & UI**
 
-- Improve UI/UX with better styling and more polished interactions
-- Integrate additional APIs (e.g., Google Maps Routes API for travel and traffic data, Eventbrite/Meetup/Luma APIs for real-world events) to make gameplay more dynamic and location-aware
+- Improve the UI/UX with more polished styling and clearer gameplay feedback
+- Integrate additional APIs, such as Google Maps Routes for travel/traffic data and Eventbrite, Meetup, or Luma for real-world event inspiration, to make gameplay more dynamic and location-aware
 - Expand test coverage for core game logic and edge cases
 
 **Backend & System Design**
 
-- Refactor data models (events/resources) into more structured schemas for easier scaling
-- Improve API structure for clearer separation of concerns
+- Refactor event and resource handling into more structured schemas for easier scaling and maintenance
+- Strengthen the service layer and request flow to make responsibilities even clearer between routes, business logic, and persistence
 
 **Reliability & Performance**
 
-- Implement simple caching for weather data (per-city with short TTL)
-- Add structured logging for better debugging and monitoring
-- Improve network resilience with explicit timeout handling and graceful fallbacks
-- Implement integration testing to validate end to end testing
+- Implement simple caching for weather data to reduce repeated external requests
+- Add structured logging for easier debugging and better observability
+- Improve network resilience with clearer timeout and fallback behavior
+- Add integration tests to validate end-to-end gameplay flows
