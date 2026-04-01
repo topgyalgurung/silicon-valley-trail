@@ -6,11 +6,6 @@ Silicon Valley Trail is a replayable, Oregon Trail–inspired simulation game wh
 
 The game blends deterministic logic with randomness and real-time weather data to create a balanced and engaging experience. Built with a modular Flask architecture, the project focuses on clean design, scalability, and testability.
 
-## Project Links
-
-- **Live Demo:** [Open app](<[https://...](https://silicon-valley-trail.onrender.com/)>)
-- **Demo Video:** [Watch here](<[https://...](https://drive.google.com/file/d/1e_DFbQ7lJ1KUc2DEPLHkedoMEOTIUcFM/view?usp=sharing)>)
-
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
