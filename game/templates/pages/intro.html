@@ -16,10 +16,8 @@
 
 <p>Good luck, founder !</p>
 
-<p>Press Enter to begin your journey...</p>
 
 {% if game_id %}
 <a href="{{ url_for('game.show_game', game_id=game_id) }}">
-  <button>Start Journey</button></a
->
+  <button>Begin your journey...</button></a>
 {% endif %} {% endblock %}
