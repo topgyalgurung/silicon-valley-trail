@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app, flash
+from flask import Blueprint, render_template, request, redirect, url_for, abort
 from game.services import (
     apply_action, 
     apply_current_event_choice, 
@@ -15,9 +15,9 @@ ALLOWED_ACTIONS = ["travel", "rest", "work", "marketing", "save", "quit"]
 
 # todo: POST -> redirect -> GET pattern
 
-def render_game_page(game, message=None):
+def render_game_page(game, message=None, weather_data=None):
     days_left = max(0, 21 - game.current_day)
-    weather_data, weather_warning = get_game_weather(game)
+    weather_data, weather_warning = get_game_weather(game, weather_data)
     return render_template(
         "pages/game.html", 
         game=game, 
@@ -56,11 +56,9 @@ def show_game(game_id):
 @game_routes.route("/game/<int:game_id>/move", methods=["POST"])
 def handle_move(game_id):
     action = request.form.get("action")
-
     if action not in ALLOWED_ACTIONS:
         abort(400, "Invalid action")
 
-    # Load the current game session from the database or return 404 if not found
     game = GameSession.query.get_or_404(game_id)
 
     if action == "save":
@@ -71,16 +69,10 @@ def handle_move(game_id):
         save_game(game)
         return redirect(url_for("game.home"))
     
-    try:
-        result = apply_action(action, game) 
-    except requests.exceptions.RequestException:
-        return redirect(url_for("game.show_game", game_id=game_id))
-    except Exception:
-        current_app.logger.exception("Error applying action: %s", action)
-        abort(500, "Internal server error")
+    result = apply_action(action, game) 
+    save_game(result.game)
 
     if result.game_over:
-        # template = "pages/game.html" if result.status == "won" else "pages/message.html"
         return render_template(
             "pages/message.html", 
             game=result.game, 
@@ -96,16 +88,8 @@ def handle_move(game_id):
             message=result.message,
             action=action
         )
-
-    # display message for other actions except travel
     message = ACTION_EFFECTS.get(action, {}).get("message")
     return render_game_page(game, message)
-    # return render_template(
-    #     "pages/game.html",
-    #     game = game,
-    #     event = None,
-    #     message = message
-    # )
 
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])
 def handle_event(game_id):
@@ -114,9 +98,18 @@ def handle_event(game_id):
         abort(400, "Invalid choice")
 
     game = GameSession.query.get_or_404(game_id)
-    game, message = apply_current_event_choice(choice, game)
-    save_game(game)
-    return render_game_page(game)
+    result = apply_current_event_choice(choice, game)
+    save_game(result.game)
+
+    if result.game_over:
+        return render_template(
+            "pages/message.html",
+            game=result.game,
+            message=result.message,
+            game_over=True,
+            game_id=result.game.id, 
+        )
+    return render_game_page(result.game, result.message)
 
 @game_routes.route("/quit")
 def quit_game():

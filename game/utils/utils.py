@@ -4,6 +4,10 @@ from game.extensions import db
 from game.services.weather_service import get_weather_by_city
 from data.mock_api_data import ACTION_EFFECTS
 
+START_CITY = "San Jose" 
+# START_CITY_TEST = "Daly City" # test destination reached logic
+DESTINATION_CITY = "San Francisco"
+
 def get_next_location(current_location_id):
     current_location = db.session.get(Location, current_location_id)
     if not current_location:
@@ -46,8 +50,9 @@ def check_coffee_warning(game, effects):
         return False
     return game.coffee + coffee_change <=0
 
-def get_game_weather(game):
-    weather_data = get_weather_by_city(game.current_location.city_name)
+def get_game_weather(game, weather=None):
+    weather_data = weather or get_weather_by_city(game.current_location.city_name)
+
     weather_warning = None
     if not weather_data["ok"]:
         weather_warning = "live weather unavailable. Showing fallback data."
@@ -65,3 +70,13 @@ def calculate_progress(distance_traveled_miles):
         return 0.0
     percentage = (distance_traveled_miles / total_distance_miles) * 100 
     return int(min(100.0, percentage))
+
+def get_start_and_destination_locations():
+    start_location = Location.query.filter_by(city_name=START_CITY).first()
+    destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
+
+    if not start_location or not destination_location:
+        raise ValueError("Start or destination location not found")
+
+    return start_location, destination_location
+ 

@@ -1,5 +1,6 @@
 from data.mock_api_data import INITIAL_GAME_STATE
 from game.models import GameSession, Location
+from game.utils.utils import get_start_and_destination_locations
 from game.extensions import db
 
 START_CITY = "San Jose" 
@@ -16,8 +17,7 @@ def save_game(data):
     db.session.commit()
 
 def create_new_game():
-    start_location = Location.query.filter_by(city_name=START_CITY).first()
-    destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
+    start_location, destination_location = get_start_and_destination_locations()
 
     game = GameSession(
         current_location_id=start_location.id,
@@ -29,8 +29,7 @@ def create_new_game():
     return game
 
 def reset_game(game):
-    start_location = Location.query.filter_by(city_name=START_CITY).first()
-    destination_location = Location.query.filter_by(city_name=DESTINATION_CITY).first()
+    start_location, destination_location = get_start_and_destination_locations()
 
     if not start_location or not destination_location:
         raise ValueError("Start or destination location not found")

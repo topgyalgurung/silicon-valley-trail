@@ -19,9 +19,9 @@ def apply_effects(game, effects):
         new_value =  current_value + effects[field]
         setattr(game, field, clamp_resource(field, new_value)) # set attr dynamically
 
-def apply_weather_effects(game):
+def apply_weather_effects(game, weather_data=None):
 
-    weather_data = get_weather_by_city(game.current_location.city_name)
+    weather_data = weather_data or get_weather_by_city(game.current_location.city_name)
     weather = weather_data["summary"]
 
     effect = WEATHER_EFFECTS.get(weather, {})
@@ -29,12 +29,12 @@ def apply_weather_effects(game):
         apply_effects(game, effect)
     return weather
 
-def build_api_context(city_name):
+def build_api_context(city_name, weather_data=None):
     """
     Normalize API data into a simple structure for event filtering.
     Weather affects which events are eligible, not direct resource changes.
     """
-    weather_data = get_weather_by_city(city_name)
+    weather_data = weather_data or get_weather_by_city(city_name)
     return {
         "api_ok": weather_data.get("ok", False),
         "weather_main": weather_data.get("summary"),
@@ -96,9 +96,9 @@ def pick_event_for_location(location_name, game, api_context):
         return None
     return random.choice(valid_events)
 
-def trigger_event_after_travel(game, next_location):
+def trigger_event_after_travel(game, next_location, weather_data=None):
     """Trigger one valide eevent after arriving at a new location """
-    api_context = build_api_context(next_location.city_name)
+    api_context = build_api_context(next_location.city_name, weather_data)
     event = pick_event_for_location(next_location.city_name, game, api_context)
 
     game.current_event_key = event["id"] if event else None
@@ -121,11 +121,11 @@ def apply_action(action, game):
 
     apply_effects(game, effects)
 
-    # real time weather effects apply
-    _ = apply_weather_effects(game)
+    weather_data = get_weather_by_city(game.current_location.city_name)
+    apply_weather_effects(game, weather_data)
 
     game.current_day += 1
-    _, status_message = update_game_status(game)
+    status, status_message = update_game_status(game)
 
     if game.status != "in_progress":
         return ActionResult(
@@ -169,7 +169,8 @@ def apply_action(action, game):
 
     game.current_location_id = next_location.id
 
-    event = trigger_event_after_travel(game, next_location)
+    weather_data = get_weather_by_city(next_location.city_name)
+    event = trigger_event_after_travel(game, next_location, weather_data)
     status, status_message = update_game_status(game)
     save_game(game)
 
@@ -186,7 +187,13 @@ def apply_current_event_choice(choice, game):
     if game.current_event_key == "system_coffee_warning":
         option = next((o for o in COFFEE_WARNING_EVENT["options"] if o["id"] == choice), None)
         if not option:
-            return game, None
+            return ActionResult(
+                game=game,
+                event=None,
+                message=None,
+                status=game.status,
+                game_over=False,
+            )
 
         effects = option["effect"]
         skip_turns = effects.get("skip_turns", 0)
@@ -196,25 +203,55 @@ def apply_current_event_choice(choice, game):
             game.coffee = 0
 
         apply_effects(game, effects)
-        return game, option["text"]
+        game.current_event_key = None
+
+        status, status_message = update_game_status(game)
+
+        return ActionResult(
+            game=game,
+            event=None,
+            message=status_message or option["text"],
+            status=status,
+            game_over=status != "in_progress",
+        )
+
 
     city_events = EVENTS_BY_LOCATION.get(game.current_location.city_name,[])
     event = next((e for e in city_events if e["id"] == game.current_event_key), None)
     if not event:
-        return game, None
+        return ActionResult(
+            game=game,
+            event=None,
+            message=None,
+            status=game.status,
+            game_over=False,
+        )
 
     if event.get("requires_input"):
         option = next((o for o in event.get("options", []) if o["id"] == choice), None)
         if not option:
-            return game, None
+            return ActionResult(
+                game=game,
+                event=None,
+                message=None,
+                status=game.status,
+                game_over=False,
+            )
         effects = option.get("effect", {})
-        message = option.get("text", None)
+        base_message = option.get("text", None)
     else:
         effects = event.get("effect", {})
-        message = event.get("text", None)
-    apply_effects(game, effects)
-    game.current_event_key = None
-    return game, message
+        base_message = event.get("text", None)
+
+    status, status_message = update_game_status(game)
+
+    return ActionResult(
+        game=game,
+        event=None,
+        message=status_message or base_message,
+        status=status,
+        game_over=status != "in_progress",
+    )
     
 
 
