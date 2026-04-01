@@ -3,9 +3,6 @@ from game.models import GameSession, Location
 from game.utils.utils import get_start_and_destination_locations
 from game.extensions import db
 
-START_CITY = "San Jose" 
-# START_CITY_TEST = "Daly City" # test destination reached logic
-DESTINATION_CITY = "San Francisco"
 
 # development
 def clear_all_games():
@@ -30,9 +27,6 @@ def create_new_game():
 
 def reset_game(game):
     start_location, destination_location = get_start_and_destination_locations()
-
-    if not start_location or not destination_location:
-        raise ValueError("Start or destination location not found")
     
     for field, value in INITIAL_GAME_STATE.items():
         setattr(game, field, value)

@@ -6,5 +6,4 @@ class ActionResult:
     event: dict | None
     status: str | None
     message: str | None
-    weather_data: dict | None = None
     game_over: bool = False 

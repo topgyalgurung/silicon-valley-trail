@@ -7,7 +7,6 @@ def test_apply_action_triggers_coffee_warning(sample_game, mocker):
         "game.services.game_service.ACTION_EFFECTS",
         {"work": {"coffee": -60}}
     )
-    mocker.patch("game.services.game_service.save_game")
 
     result = apply_action("work", sample_game)
 
@@ -23,7 +22,6 @@ def test_apply_action_non_travel_updates_day_and_resources(sample_game, mocker):
         {"work": {"cash": 100, "morale": -5, "coffee": -10}}
     )
     mocker.patch("game.services.game_service.apply_weather_effects", return_value="Clear")
-    mocker.patch("game.services.game_service.save_game")
 
     result = apply_action("work", sample_game)
 
@@ -48,7 +46,6 @@ def test_apply_action_travel_moves_to_next_location(sample_game, mocker, app):
     )
     mocker.patch("game.services.game_service.apply_weather_effects", return_value="Clear")
     mocker.patch("game.services.game_service.trigger_event_after_travel", return_value=None)
-    mocker.patch("game.services.game_service.save_game")
 
     result = apply_action("travel", sample_game)
 
@@ -70,10 +67,10 @@ def test_apply_action_travel_wins_when_no_next_location(sample_game, mocker):
     )
     mocker.patch("game.services.game_service.apply_weather_effects", return_value="Clear")
     mocker.patch("game.services.game_service.get_next_location", return_value=None)
-    mocker.patch("game.services.game_service.save_game")
 
     result = apply_action("travel", sample_game)
 
     assert sample_game.status == "won"
     assert result.status == "won"
     assert result.game_over is True
+

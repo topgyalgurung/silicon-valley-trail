@@ -87,7 +87,7 @@ def handle_move(game_id):
             message=result.message,
             action=action
         )
-    return render_game_page(result.game, result.message, result.weather_data)
+    return render_game_page(result.game, result.message)
 
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])
 def handle_event(game_id):

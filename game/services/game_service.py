@@ -3,7 +3,6 @@ import random
 from game.models import GameSession, Location
 from game.services.weather_service import get_weather_by_city
 from game.utils.utils import get_next_location, clamp_resource, update_game_status, check_coffee_warning, calculate_progress
-from game.utils.state import save_game
 from data.mock_api_data import EVENTS_BY_LOCATION, ACTION_EFFECTS, COFFEE_WARNING_EVENT, WEATHER_EFFECTS
 from game.services.result_types import ActionResult
 from game.extensions import db
@@ -110,7 +109,6 @@ def apply_action(action, game):
     # if game coffee == effect then trigger coffee warning to replenish
     if check_coffee_warning(game, effects):
         game.current_event_key = COFFEE_WARNING_EVENT["id"]
-        save_game(game)
         return ActionResult(
             game=game,
             event=COFFEE_WARNING_EVENT,
@@ -138,11 +136,11 @@ def apply_action(action, game):
 
     if action != "travel":
         game.current_event_key = None
-        save_game(game)
+        action_message = ACTION_EFFECTS.get(action, {}).get("message")
         return ActionResult(
             game=game,
             event=None,
-            message=None,
+            message=action_message,
             status=game.status,
             game_over=False
         )
@@ -153,12 +151,10 @@ def apply_action(action, game):
 
     if not next_location:
         game.status = "won"
-        save_game(game)
         return ActionResult(
             game=game,
             event=None,
             status=game.status,
-            progress=game.progress,
             message="Congratulations, you reached San Francisco!",
             game_over=True
         )
@@ -172,7 +168,6 @@ def apply_action(action, game):
     weather_data = get_weather_by_city(next_location.city_name)
     event = trigger_event_after_travel(game, next_location, weather_data)
     status, status_message = update_game_status(game)
-    save_game(game)
 
     return ActionResult(
         game=game,
