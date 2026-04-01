@@ -6,40 +6,33 @@ Silicon Valley Trail is a replayable, Oregon Trail–inspired simulation game wh
 
 The game blends deterministic logic with randomness and real-time weather data to create a balanced and engaging experience. Built with a modular Flask architecture, the project focuses on clean design, scalability, and testability.
 
----
+## Table of Contents
 
-## Documentation
-
-- [SILICON VALLEY TRAIL](#silicon-valley-trail)
-  - [Overview](#overview)
-  - [Documentation](#documentation)
-    - [Quick Start](#quick-start)
-    - [API Key Setup](#api-key-setup)
-      - [Running with Mock Data (No API Key Needed)](#running-with-mock-data-no-api-key-needed)
-  - [Architecture](#architecture)
-    - [Architecture Layers](#architecture-layers)
-    - [Project Structure](#project-structure)
-    - [Dependencies](#dependencies)
-      - [Tech Stack](#tech-stack)
-      - [Dependencies](#dependencies-1)
-    - [Running Tests](#running-tests)
-    - [Example Commands / Inputs](#example-commands--inputs)
-      - [Run the game locally](#run-the-game-locally)
-      - [Sample gameplay flow](#sample-gameplay-flow)
-      - [Example input sequence](#example-input-sequence)
-      - [AI Usage](#ai-usage)
-  - [DESIGN NOTES](#design-notes)
-    - [1. Game Loop and Balance Approach](#1-game-loop-and-balance-approach)
-    - [2. Why OpenWeather API and how it affects gameplay](#2-why-openweather-api-and-how-it-affects-gameplay)
-    - [API Choice and Gameplay Impact](#api-choice-and-gameplay-impact)
-    - [3. Data Modeling ( state, events, persistence)](#3-data-modeling--state-events-persistence)
-    - [Data Modeling (State, Events, Persistence)](#data-modeling-state-events-persistence)
-    - [4. Error Handling (Network Failures, Rate Limits)](#4-error-handling-network-failures-rate-limits)
-    - [5. Tradeoffs and if I had more time](#5-tradeoffs-and-if-i-had-more-time)
-      - [Tradeoffs](#tradeoffs)
-      - [If I Had More Time](#if-i-had-more-time)
-
----
+- [Quick Start](#quick-start)
+- [API Key Setup](#api-key-setup)
+  - [Running with Mock Data (No API Key Needed)](#running-with-mock-data-no-api-key-needed)
+- [Architecture](#architecture)
+  - [Architecture Layers](#architecture-layers)
+  - [Project Structure](#project-structure)
+  - [Dependencies](#dependencies)
+    - [Tech Stack](#tech-stack)
+    - [Dependencies](#dependencies-1)
+  - [Running Tests](#running-tests)
+  - [Example Commands / Inputs](#example-commands--inputs)
+    - [Run the game locally](#run-the-game-locally)
+    - [Sample gameplay flow](#sample-gameplay-flow)
+    - [Example input sequence](#example-input-sequence)
+    - [AI Usage](#ai-usage)
+- [DESIGN NOTES](#design-notes)
+  - [1. Game Loop and Balance Approach](#1-game-loop-and-balance-approach)
+  - [2. Why OpenWeather API and how it affects gameplay](#2-why-openweather-api-and-how-it-affects-gameplay)
+  - [API Choice and Gameplay Impact](#api-choice-and-gameplay-impact)
+  - [3. Data Modeling ( state, events, persistence)](#3-data-modeling--state-events-persistence)
+  - [Data Modeling (State, Events, Persistence)](#data-modeling-state-events-persistence)
+  - [4. Error Handling (Network Failures, Rate Limits)](#4-error-handling-network-failures-rate-limits)
+  - [5. Tradeoffs and if I had more time](#5-tradeoffs-and-if-i-had-more-time)
+    - [Tradeoffs](#tradeoffs)
+    - [If I Had More Time](#if-i-had-more-time)
 
 ### Quick Start
 
