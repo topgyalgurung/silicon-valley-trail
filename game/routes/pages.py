@@ -7,7 +7,6 @@ from game.services import (
 from game.models import GameSession
 from game.utils.utils import get_game_weather
 from game.utils.state import save_game, create_new_game, clear_all_games
-from data.mock_api_data import ACTION_EFFECTS
 
 game_routes = Blueprint("game", __name__, url_prefix="") # api/v1
 
@@ -88,8 +87,7 @@ def handle_move(game_id):
             message=result.message,
             action=action
         )
-    message = ACTION_EFFECTS.get(action, {}).get("message")
-    return render_game_page(game, message)
+    return render_game_page(result.game, result.message, result.weather_data)
 
 @game_routes.route('/game/<int:game_id>/event', methods=["POST"])
 def handle_event(game_id):

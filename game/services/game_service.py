@@ -242,7 +242,10 @@ def apply_current_event_choice(choice, game):
     else:
         effects = event.get("effect", {})
         base_message = event.get("text", None)
-
+    
+    apply_effects(game, effects)
+    game.current_event_key = None
+    
     status, status_message = update_game_status(game)
 
     return ActionResult(

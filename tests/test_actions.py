@@ -54,12 +54,12 @@ def test_apply_current_event_choice_system_warning_valid(sample_game, mocker):
         mock_coffee_warning_event
     )
 
-    game, message = apply_current_event_choice("buy_coffee", sample_game)
+    result = apply_current_event_choice("buy_coffee", sample_game)
 
-    assert game.cash == 450
-    assert game.coffee == 70
-    assert game.current_day == 1
-    assert message == "Buy coffee"
+    assert result.game.cash == 450
+    assert result.game.coffee == 70
+    assert result.game.current_day == 1
+    assert result.message == "Buy coffee"
 
 
 def test_apply_current_event_choice_system_warning_invalid(sample_game, mocker):
@@ -81,12 +81,12 @@ def test_apply_current_event_choice_system_warning_invalid(sample_game, mocker):
         mock_coffee_warning_event
     )
 
-    game, message = apply_current_event_choice("invalid_choice", sample_game)
+    result = apply_current_event_choice("invalid_choice", sample_game)
 
-    assert game == sample_game
-    assert game.cash == 500
-    assert game.coffee == 50
-    assert message is None
+    assert result.game == sample_game
+    assert result.game.cash == 500
+    assert result.game.coffee == 50
+    assert result.message is None
 
 
 def test_apply_current_event_choice_city_event_with_input(sample_game, mocker):
@@ -118,12 +118,12 @@ def test_apply_current_event_choice_city_event_with_input(sample_game, mocker):
         mock_events
     )
 
-    game, message = apply_current_event_choice("buy", sample_game)
+    result = apply_current_event_choice("buy", sample_game)
 
-    assert game.cash == 450
-    assert game.coffee == 70
-    assert game.current_event_key is None
-    assert message == "Buy coffee"
+    assert result.game.cash == 450
+    assert result.game.coffee == 70
+    assert result.game.current_event_key is None
+    assert result.message == "Buy coffee"
 
 
 def test_apply_current_event_choice_city_event_without_input(sample_game, mocker):
@@ -145,9 +145,9 @@ def test_apply_current_event_choice_city_event_without_input(sample_game, mocker
         mock_events
     )
 
-    game, message = apply_current_event_choice("anything", sample_game)
+    result = apply_current_event_choice("anything", sample_game)
 
-    assert game.coffee == 40
-    assert game.morale == 75
-    assert game.current_event_key is None
-    assert message == "Rain slows the team"
+    assert result.game.coffee == 40
+    assert result.game.morale == 75
+    assert result.game.current_event_key is None
+    assert result.message == "Rain slows the team"
