@@ -9,8 +9,22 @@ def clear_all_games():
     GameSession.query.delete()
     db.session.commit()
 
-def save_game(data):
-    db.session.add(data)
+def save_game(game):
+    new_game_state = GameSession(
+        current_day=game.current_day,
+        current_location_id=game.current_location_id,
+        destination_location_id=game.destination_location_id,
+        status=game.status,
+        progress=game.progress,
+        distance_traveled_miles=game.distance_traveled_miles,
+        current_event_key=game.current_event_key,
+        cash=game.cash,
+        morale=game.morale,
+        coffee=game.coffee,
+        hype=game.hype,
+        bugs=game.bugs,
+    )
+    db.session.add(new_game_state)
     db.session.commit()
 
 def create_new_game():
