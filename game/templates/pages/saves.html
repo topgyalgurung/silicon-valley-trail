@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block content %}
+<h1>Saved Games</h1>
+
+{% if saves %}
+<ul>
+  {% for save in saves %}
+  <li>
+    <strong>Save {{ save.id }}</strong>
+    <span>Day {{ save.current_day }}</span>
+    <span>{{ save.current_location.city_name }}</span>
+    <span>{{ save.progress }}% complete</span>
+    <span>Status: {{ save.status }}</span>
+
+    <a href="{{ url_for('game.show_game', game_id=save.id) }}"> Load </a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No saved games yet.</p>
+{% endif %}
+
+<a href="{{ url_for('game.home') }}">Back to Menu</a>
+{% endblock %}

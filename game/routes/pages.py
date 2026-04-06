@@ -109,6 +109,13 @@ def handle_event(game_id):
         )
     return render_game_page(result.game, result.message)
 
+
+@game_routes.route("/saves")
+def list_saves():
+    saves = GameSession.query.order_by(GameSession.created_at.desc()).all()
+    return render_template("pages/saves.html", saves=saves)
+
+
 @game_routes.route("/quit")
 def quit_game():
     return render_template("pages/message.html", message="Have a nice day!")
