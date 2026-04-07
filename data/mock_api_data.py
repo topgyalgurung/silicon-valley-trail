@@ -8,6 +8,7 @@ INITIAL_GAME_STATE = {
     "bugs": 0,
     "progress": 0, # 0-100
     "current_event_key": None,
+    "missed_coffee_turns": 0,
 }
 EVENTS_BY_LOCATION = {
     "Santa Clara": [
@@ -672,12 +673,12 @@ COFFEE_WARNING_EVENT = {
         {
             "id": "replenish",
             "text": "Replenish coffee (otherwise miss 2 turns)",
-            "effect": {"coffee": 25, "skip_turns": 1}, # no skip turns if replenish coffee
+            "effect": {"coffee": 25, "skip_turns": 0}, 
         },
         {
             "id": "risk_it",
             "text": "Risk it and continue",
-            "effect": {"coffee": 0, "skip_turns": 2},
+            "effect": {"coffee": 0, "skip_turns": 2}, # use this 2 days skip when 2 days consecutive without coffee
         },
     ],
 }

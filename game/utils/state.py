@@ -10,6 +10,7 @@ def clear_all_games():
     db.session.commit()
 
 def save_game(game):
+    
     new_game_state = GameSession(
         current_day=game.current_day,
         current_location_id=game.current_location_id,
@@ -23,6 +24,7 @@ def save_game(game):
         coffee=game.coffee,
         hype=game.hype,
         bugs=game.bugs,
+        missed_coffee_turns=game.missed_coffee_turns,
     )
     db.session.add(new_game_state)
     db.session.commit()

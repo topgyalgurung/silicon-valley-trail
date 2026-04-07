@@ -192,14 +192,21 @@ def apply_current_event_choice(choice, game):
 
         effects = option["effect"]
         skip_turns = effects.get("skip_turns", 0)
-        game.current_day += skip_turns # add 2 days to current day for 2 coffee skip turns else 1 day
 
-        if choice == "risk_it":
+        if option["id"] == "replenish":
+            game.missed_coffee_turns = 0
+            game.current_day += 1
+        elif option["id"] == "risk_it":
+            game.missed_coffee_turns += 1
             game.coffee = 0
 
+            if game.missed_coffee_turns >= 2:
+                game.current_day += skip_turns
+                game.missed_coffee_turns = 0
+            else:
+                game.current_day += 1
         apply_effects(game, effects)
         game.current_event_key = None
-
         status, status_message = update_game_status(game)
 
         return ActionResult(
