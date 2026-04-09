@@ -15,6 +15,7 @@ class GameSession(db.Model):
     distance_traveled_miles = db.Column(db.Float, nullable=False, default=0.0)
     current_event_key = db.Column(db.String(100), nullable=True) # presented/selected event 
     missed_coffee_turns = db.Column(db.Integer, default=0) # if coffee is 0 for 2 turns, then missed_coffee_turns = 2
+    saved_game_id = db.Column(db.Integer, nullable=True) # if the game is saved, the id of the saved game
 
     # cache weather data for the current location
     # weather_summary = db.Column(db.String(100), nullable=True)

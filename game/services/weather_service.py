@@ -42,7 +42,7 @@ def get_weather_by_city(city_name):
     url = f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=imperial" # imperial for F and metric for celsius
 
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=2)
         data = response.json()
         return{
             "ok": True,

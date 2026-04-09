@@ -76,12 +76,11 @@ LOCATIONS = [
     },
 ]
 def seed_locations():
-    for data in LOCATIONS:
-        exists = {loc.city_name for loc in Location.query.all()}
-        new_locations = [Location(**loc) for loc in LOCATIONS if loc["city_name"] not in exists]
-        if new_locations:
-            db.session.add_all(new_locations)
-            db.session.commit()
+    exists = {loc.city_name for loc in Location.query.all()}
+    new_locations = [Location(**loc) for loc in LOCATIONS if loc["city_name"] not in exists]
+    if new_locations:
+        db.session.add_all(new_locations)
+        db.session.commit()
 
 if __name__ == "__main__":
     from game import create_app

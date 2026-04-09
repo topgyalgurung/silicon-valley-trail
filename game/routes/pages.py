@@ -6,7 +6,7 @@ from game.services import (
 )
 from game.models import GameSession
 from game.utils.utils import get_game_weather
-from game.utils.state import save_game, create_new_game, clear_all_games
+from game.utils.state import persist_game, create_new_game, save_game
 
 game_routes = Blueprint("game", __name__, url_prefix="") # api/v1
 
@@ -35,16 +35,16 @@ def home():
 
 @game_routes.route("/new")
 def new_game():
-    clear_all_games()
+    # clear_all_games()
     game = create_new_game()
     return render_template("pages/intro.html", game_id=game.id)
 
-@game_routes.route("/load")
-def load_game():
-    game = GameSession.query.order_by(GameSession.id.desc()).first()
-    if not game:
-        return redirect(url_for("game.home"))
-    return render_game_page(game,"✅ Game loaded successfully" )
+# @game_routes.route("/load-latest")
+# def load_game():
+#     game = GameSession.query.filter_by(saved_game_id=None).order_by(GameSession.id.desc()).first()
+#     if not game:
+#         return redirect(url_for("game.home"))
+#     return render_game_page(game,"✅ Game loaded successfully" )
 
 @game_routes.route("/game/<int:game_id>")
 def show_game(game_id):
@@ -65,11 +65,11 @@ def handle_move(game_id):
         return render_game_page(game, "💾 Game saved successfully.")
     
     if action == "quit":
-        save_game(game)
+        # save_game(game) # dont save game on quit
         return redirect(url_for("game.home"))
     
     result = apply_action(action, game) 
-    save_game(result.game)
+    persist_game(result.game)
 
     if result.game_over:
         return render_template(
@@ -97,7 +97,7 @@ def handle_event(game_id):
 
     game = GameSession.query.get_or_404(game_id)
     result = apply_current_event_choice(choice, game)
-    save_game(result.game)
+    persist_game(result.game)
 
     if result.game_over:
         return render_template(
@@ -112,7 +112,11 @@ def handle_event(game_id):
 
 @game_routes.route("/saves")
 def list_saves():
-    saves = GameSession.query.order_by(GameSession.created_at.desc()).all()
+    # saves = GameSession.query.order_by(GameSession.created_at.desc()).all()
+    saves = GameSession.query.filter(
+    GameSession.saved_game_id.isnot(None),
+    GameSession.id != GameSession.saved_game_id
+).order_by(GameSession.id.desc()).all()
     return render_template("pages/saves.html", saves=saves)
 
 
